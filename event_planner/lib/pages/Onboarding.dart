@@ -1,7 +1,36 @@
 import 'package:flutter/material.dart';
+import 'PaginaInicial.dart';
 
-class Onboarding extends StatelessWidget {
+class Onboarding extends StatefulWidget {
   const Onboarding({super.key});
+
+  @override
+  State<Onboarding> createState() => _OnboardingState();
+}
+
+class _OnboardingState extends State<Onboarding> {
+  @override
+  void initState() {
+    super.initState();
+
+    Future.delayed(const Duration(seconds: 2), () {
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: 300),
+          pageBuilder: (_, animation, __) => const PaginaInicial(),
+          transitionsBuilder: (_, animation, __, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
