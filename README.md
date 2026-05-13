@@ -25,7 +25,7 @@ O projeto foi pensado para oferecer uma experiência simples, prática e intuiti
 | Hyago Oliveira | Início, Cadastrar Novo Evento e Editar Evento |
 |  | Agenda |
 |  | Tarefas, Criar Nova Tarefa e Editar Tarefa |
-|  | Perfil |
+| Alan Vieira | Perfil |
 
 ---
 
