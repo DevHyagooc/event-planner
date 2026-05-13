@@ -20,7 +20,7 @@ O projeto foi pensado para oferecer uma experiência simples, prática e intuiti
 
 | Integrante | Telas |
 |---|---|
-|  | Tela Inicial e Cadastro |
+| Gustavo Rodrigues | Tela Inicial e Cadastro |
 |  | Login e Esqueci a Senha |
 | Hyago | Início, Cadastrar Novo Evento e Editar Evento |
 |  | Agenda |
