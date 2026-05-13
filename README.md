@@ -24,7 +24,7 @@ O projeto foi pensado para oferecer uma experiência simples, prática e intuiti
 | Filipe Brisio  | Login e Esqueci a Senha |
 | Hyago Oliveira | Início, Cadastrar Novo Evento e Editar Evento |
 | Breno Barbosa | Agenda |
-|  | Tarefas, Criar Nova Tarefa e Editar Tarefa |
+| Isaias Oliveira | Tarefas, Criar Nova Tarefa e Editar Tarefa |
 | Alan Vieira | Perfil |
 
 ---
