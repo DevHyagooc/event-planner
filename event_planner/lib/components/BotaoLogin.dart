@@ -12,7 +12,7 @@ class BotaoLogin extends StatelessWidget {
     super.key,
     required this.texto,
     required this.onPressed,
-    this.backgroundColor = Colors.orange,
+    this.backgroundColor = const Color(0xFFE76E50),
     this.textColor = Colors.white,
     this.isOutlined = false,
     this.isGoogle = false,
@@ -34,7 +34,6 @@ class BotaoLogin extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              // Image.asset('assets/images/google.png', height: 20),
               Container(
                 padding: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
@@ -56,7 +55,7 @@ class BotaoLogin extends StatelessWidget {
           );
 
     return SizedBox(
-      width: 360,
+      width: double.infinity,
       height: 50,
       child: isOutlined
           ? OutlinedButton(
