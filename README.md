@@ -23,7 +23,7 @@ O projeto foi pensado para oferecer uma experiência simples, prática e intuiti
 | Gustavo Rodrigues | Tela Inicial e Cadastro |
 | Filipe Brisio  | Login e Esqueci a Senha |
 | Hyago Oliveira | Início, Cadastrar Novo Evento e Editar Evento |
-|  | Agenda |
+| Breno Barbosa | Agenda |
 |  | Tarefas, Criar Nova Tarefa e Editar Tarefa |
 | Alan Vieira | Perfil |
 
