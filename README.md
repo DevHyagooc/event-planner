@@ -21,7 +21,7 @@ O projeto foi pensado para oferecer uma experiência simples, prática e intuiti
 | Integrante | Telas |
 |---|---|
 | Gustavo Rodrigues | Tela Inicial e Cadastro |
-|  | Login e Esqueci a Senha |
+| Filipe Brisio  | Login e Esqueci a Senha |
 | Hyago Oliveira | Início, Cadastrar Novo Evento e Editar Evento |
 |  | Agenda |
 |  | Tarefas, Criar Nova Tarefa e Editar Tarefa |
