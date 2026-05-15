@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './pages/Onboarding.dart';
+import 'pages/onboarding.dart';
 
 void main() {
   runApp(const EventPlannerApp());

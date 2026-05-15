@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../components/BotaoLogin.dart';
-import 'Cadastro.dart';
+import '../components/botao.dart';
+import 'cadastro.dart';
 
 class PaginaInicial extends StatelessWidget {
   const PaginaInicial({super.key});

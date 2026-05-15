@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
-import '../components/BotaoLogin.dart';
-import '../components/cadastro/CampoTextoCadastro.dart';
-import '../components/cadastro/CardCadastro.dart';
-import '../components/CardErro.dart';
+import '../components/botao.dart';
+import '../components/cadastro/campo_texto_cadastro.dart';
+import '../components/cadastro/card_cadastro.dart';
+import '../components/card_erro.dart';
 import '../services/validacao.dart';
+import 'confirmar_email.dart';
 
 class Cadastro extends StatefulWidget {
   const Cadastro({super.key});
@@ -53,6 +54,13 @@ class _CadastroState extends State<Cadastro> {
       mostrarErro('CPF inválido.');
       return;
     }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ConfirmarEmail(email: emailController.text),
+      ),
+    );
   }
 
   void mostrarErro(String mensagem) {

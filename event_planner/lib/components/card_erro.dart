@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'BotaoLogin.dart';
+import 'botao.dart';
 
 class CardErro extends StatelessWidget {
   final String mensagem;

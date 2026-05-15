@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'PaginaInicial.dart';
+import 'pagina_inicial.dart';
 
 class Onboarding extends StatefulWidget {
   const Onboarding({super.key});
