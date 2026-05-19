@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../components/botao.dart';
 import 'cadastro.dart';
+import 'profile.dart';
 
 class PaginaInicial extends StatelessWidget {
   const PaginaInicial({super.key});
@@ -103,6 +104,20 @@ class PaginaInicial extends StatelessWidget {
                 onPressed: () {},
                 isOutlined: true,
                 isGoogle: true,
+                backgroundColor: const Color(0xFFF1EEEA),
+                textColor: Colors.black,
+              ),
+
+              const SizedBox(height: 12),
+
+              BotaoLogin(
+                texto: 'Perfil',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const Profile()),
+                  );
+                },
                 backgroundColor: const Color(0xFFF1EEEA),
                 textColor: Colors.black,
               ),
