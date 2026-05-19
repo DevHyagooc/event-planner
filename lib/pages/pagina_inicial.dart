@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../components/botao.dart';
 import 'cadastro.dart';
+import 'login.dart';
 
 class PaginaInicial extends StatelessWidget {
   const PaginaInicial({super.key});
@@ -78,7 +79,12 @@ class PaginaInicial extends StatelessWidget {
 
               BotaoLogin(
                 texto: 'Entrar',
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const Login()),
+                  );
+                },
                 backgroundColor: const Color(0xFFE76E50),
               ),
 
