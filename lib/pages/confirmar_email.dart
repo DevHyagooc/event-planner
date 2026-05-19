@@ -174,7 +174,7 @@ class _ConfirmarEmailState extends State<ConfirmarEmail> {
                   ),
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 42),
               ],
             ),
           ),

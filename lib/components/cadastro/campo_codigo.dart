@@ -18,8 +18,8 @@ class CamposCodigo extends StatelessWidget {
         controllers.length,
         (index) {
           return SizedBox(
-            width: 40,
-            height: 40,
+            width: 42,
+            height: 42,
 
             child: TextField(
               controller: controllers[index],
@@ -41,7 +41,7 @@ class CamposCodigo extends StatelessWidget {
 
               style: const TextStyle(
                 fontFamily: 'SpaceGrotesk',
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: FontWeight.w500,
               ),
 

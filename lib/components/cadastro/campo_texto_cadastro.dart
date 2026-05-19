@@ -36,7 +36,7 @@ class CampoTextoCadastro extends StatelessWidget {
           label,
           style: const TextStyle(
             fontFamily: 'SpaceGrotesk',
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -54,7 +54,7 @@ class CampoTextoCadastro extends StatelessWidget {
 
             style: const TextStyle(
               fontFamily: 'SpaceGrotesk',
-              fontSize: 14,
+              fontSize: 15,
             ),
 
             decoration: InputDecoration(

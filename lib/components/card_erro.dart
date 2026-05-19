@@ -32,7 +32,7 @@ class CardErro extends StatelessWidget {
             mensagem,
             style: const TextStyle(
               fontFamily: 'SpaceGrotesk',
-              fontSize: 16,
+              fontSize: 15,
               color: Color(0xFF8C7B73),
             ),
           ),
