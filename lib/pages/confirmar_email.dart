@@ -100,7 +100,7 @@ class _ConfirmarEmailState extends State<ConfirmarEmail> {
 
                         style: const TextStyle(
                           fontFamily: 'SpaceGrotesk',
-                          fontSize: 14,
+                          fontSize: 15,
                           fontWeight: FontWeight.w400,
                           color: Color(0xFF8C7B73),
                           height: 1.1,

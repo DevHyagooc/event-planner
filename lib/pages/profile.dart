@@ -68,7 +68,7 @@ class Profile extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: 'SpaceGrotesk',
                     color: Color(0xFF666666),
-                    fontSize: 14,
+                    fontSize: 15,
                     fontWeight: FontWeight.w400,
                     height: 1.0,
                   ),
