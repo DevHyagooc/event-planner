@@ -40,7 +40,7 @@ class PaginaInicial extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: 'SpaceGrotesk',
                   color: Color(0xFFE76E50),
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.w500,
                   height: 1.0,
                   letterSpacing: -0.32,

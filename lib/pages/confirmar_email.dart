@@ -52,7 +52,7 @@ class _ConfirmarEmailState extends State<ConfirmarEmail> {
 
                     icon: const Icon(
                       Icons.arrow_back,
-                      color: Colors.black,
+                      color: const Color(0xFF2C2421),
                     ),
                   ),
                 ),
@@ -69,7 +69,7 @@ class _ConfirmarEmailState extends State<ConfirmarEmail> {
                         height: 42,
 
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFBE6E0),
+                          color: const Color(0xFFFAE2DC),
                           borderRadius: BorderRadius.circular(20),
                         ),
 
@@ -100,9 +100,9 @@ class _ConfirmarEmailState extends State<ConfirmarEmail> {
 
                         style: const TextStyle(
                           fontFamily: 'SpaceGrotesk',
-                          fontSize: 14,
+                          fontSize: 15,
                           fontWeight: FontWeight.w400,
-                          color: Color(0xFF8A8580),
+                          color: Color(0xFF8C7B73),
                           height: 1.1,
                         ),
                       ),
@@ -174,7 +174,7 @@ class _ConfirmarEmailState extends State<ConfirmarEmail> {
                   ),
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 42),
               ],
             ),
           ),

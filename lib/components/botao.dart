@@ -40,7 +40,7 @@ class BotaoLogin extends StatelessWidget {
                   color: const Color(0xFFFFFFFF),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Image.asset('assets/images/google.png', height: 20),
+                child: Image.asset('assets/images/google.png', height: 28),
               ),
             ],
           )

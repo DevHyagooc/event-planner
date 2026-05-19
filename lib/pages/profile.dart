@@ -68,14 +68,14 @@ class Profile extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: 'SpaceGrotesk',
                     color: Color(0xFF666666),
-                    fontSize: 14,
+                    fontSize: 15,
                     fontWeight: FontWeight.w400,
                     height: 1.0,
                   ),
                 ),
               ),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 42),
 
               _ItemPerfil(
                 icone: Icons.person_outline,
@@ -131,7 +131,7 @@ class _ItemPerfil extends StatelessWidget {
               style: const TextStyle(
                 fontFamily: 'SpaceGrotesk',
                 color: Color(0xFF000000),
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: FontWeight.w500,
               ),
             ),
