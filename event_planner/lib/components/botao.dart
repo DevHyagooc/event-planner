@@ -29,7 +29,7 @@ class BotaoLogin extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: 'SpaceGrotesk',
                   color: textColor,
-                  fontSize: 15,
+                  fontSize: 16,
                   fontWeight: FontWeight.w400,
                 ),
               ),
@@ -40,7 +40,7 @@ class BotaoLogin extends StatelessWidget {
                   color: const Color(0xFFFFFFFF),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Image.asset('assets/images/google.png', height: 20),
+                child: Image.asset('assets/images/google.png', height: 28),
               ),
             ],
           )
@@ -49,7 +49,7 @@ class BotaoLogin extends StatelessWidget {
             style: TextStyle(
               fontFamily: 'SpaceGrotesk',
               color: textColor,
-              fontSize: 15,
+              fontSize: 16,
               fontWeight: FontWeight.w400,
             ),
           );

@@ -65,7 +65,7 @@ class CampoTextoCadastro extends StatelessWidget {
               ),
 
               filled: true,
-              fillColor: const Color(0xFFF8F6F4),
+              fillColor: const Color(0xFFF9F7F5),
 
               border: border,
               enabledBorder: border,

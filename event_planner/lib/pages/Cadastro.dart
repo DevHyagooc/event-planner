@@ -137,7 +137,7 @@ class _CadastroState extends State<Cadastro> {
                       style: TextStyle(
                         fontFamily: 'SpaceGrotesk',
                         fontSize: 15,
-                        color: Color(0xFF8A8580),
+                        color: Color(0xFF8C7B73),
                       ),
                     ),
 
@@ -207,7 +207,7 @@ class _CadastroState extends State<Cadastro> {
                             style: TextStyle(
                               fontFamily: 'SpaceGrotesk',
                               fontSize: 14,
-                              color: Color(0xFF9A948F),
+                              color: Color(0xFF8C7B73),
                             ),
 
                             children: [
