@@ -8,133 +8,235 @@ class Agenda extends StatefulWidget {
 }
 
 class _AgendaState extends State<Agenda> {
-  int diaSelecionado = 18;
+  DateTime mesAtual = DateTime(2026, 3);
+  DateTime dataSelecionada = DateTime(2026, 3, 18);
 
   final List<EventoAgenda> eventos = [
     EventoAgenda(
       titulo: 'Aniversário de João',
-      data: '18 mar',
+      data: DateTime(2026, 3, 18),
       horario: '21:00',
       progresso: 33,
-      dia: 18,
     ),
     EventoAgenda(
-      titulo: 'Aniversário de João',
-      data: '18 mar',
-      horario: '21:00',
-      progresso: 33,
-      dia: 18,
+      titulo: 'Reunião do Evento',
+      data: DateTime(2026, 4, 10),
+      horario: '14:30',
+      progresso: 50,
+    ),
+    EventoAgenda(
+      titulo: 'Entrega de materiais',
+      data: DateTime(2026, 5, 5),
+      horario: '09:00',
+      progresso: 20,
     ),
   ];
 
   List<EventoAgenda> get eventosNaData {
-    return eventos.where((evento) => evento.dia == diaSelecionado).toList();
+    return eventos.where((evento) {
+      return evento.data.year == dataSelecionada.year &&
+          evento.data.month == dataSelecionada.month &&
+          evento.data.day == dataSelecionada.day;
+    }).toList();
+  }
+
+  List<EventoAgenda> get eventosNoMes {
+    return eventos.where((evento) {
+      return evento.data.year == mesAtual.year &&
+          evento.data.month == mesAtual.month;
+    }).toList();
+  }
+
+  void voltarMes() {
+    setState(() {
+      mesAtual = DateTime(mesAtual.year, mesAtual.month - 1);
+      dataSelecionada = DateTime(mesAtual.year, mesAtual.month, 1);
+    });
+  }
+
+  void avancarMes() {
+    setState(() {
+      mesAtual = DateTime(mesAtual.year, mesAtual.month + 1);
+      dataSelecionada = DateTime(mesAtual.year, mesAtual.month, 1);
+    });
+  }
+
+  void selecionarData(DateTime data) {
+    setState(() {
+      dataSelecionada = data;
+      mesAtual = DateTime(data.year, data.month);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F3F1),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 28),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 28),
+return Scaffold(
+  backgroundColor: const Color(0xFFF5F3F1),
 
-              const Text(
-                'Agenda',
-                style: TextStyle(
-                  fontFamily: 'SpaceGrotesk',
-                  color: Colors.black,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  height: 1.0,
-                ),
+  floatingActionButton: FloatingActionButton(
+    onPressed: () {},
+    backgroundColor: const Color(0xFFE76E50),
+    elevation: 0,
+    shape: const CircleBorder(),
+    child: const Icon(
+      Icons.add,
+      color: Colors.white,
+      size: 32,
+    ),
+  ),
+
+  floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
+  bottomNavigationBar: Container(
+  color: const Color(0xFFF5F3F1),
+  child: Center(
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(
+        maxWidth: 390,
+      ),
+      child: BottomAppBar(
+        color: const Color(0xFFF5F3F1),
+        elevation: 0,
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8,
+        child: SizedBox(
+          height: 68,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: const [
+              _ItemMenu(
+                icone: Icons.home_outlined,
+                texto: 'Início',
+                selecionado: false,
               ),
-
-              const SizedBox(height: 18),
-
-              _Calendario(
-                diaSelecionado: diaSelecionado,
-                onSelecionarDia: (dia) {
-                  setState(() {
-                    diaSelecionado = dia;
-                  });
-                },
+              _ItemMenu(
+                icone: Icons.calendar_today_outlined,
+                texto: 'Agenda',
+                selecionado: true,
               ),
-
-              const SizedBox(height: 24),
-
-              const Text(
-                'EVENTOS NA DATA',
-                style: TextStyle(
-                  fontFamily: 'SpaceGrotesk',
-                  color: Color(0xFF2C2421),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
+              SizedBox(width: 56),
+              _ItemMenu(
+                icone: Icons.check_box_outlined,
+                texto: 'Tarefas',
+                selecionado: false,
               ),
-
-              const SizedBox(height: 8),
-
-              if (eventosNaData.isEmpty)
-                const Text(
-                  'Não há eventos para essa data.',
-                  style: TextStyle(
-                    fontFamily: 'SpaceGrotesk',
-                    color: Color(0xFF9A948F),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
-                  ),
-                )
-              else
-                Column(
-                  children: eventosNaData.map((evento) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: CardEvento(evento: evento),
-                    );
-                  }).toList(),
-                ),
-
-              const SizedBox(height: 20),
-
-              const Text(
-                'EVENTOS NO MÊS',
-                style: TextStyle(
-                  fontFamily: 'SpaceGrotesk',
-                  color: Color(0xFF2C2421),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
+              _ItemMenu(
+                icone: Icons.person_outline,
+                texto: 'Perfil',
+                selecionado: false,
               ),
-
-              const SizedBox(height: 8),
-
-              if (eventos.isEmpty)
-                const Text(
-                  'Não há eventos neste mês.',
-                  style: TextStyle(
-                    fontFamily: 'SpaceGrotesk',
-                    color: Color(0xFF9A948F),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
-                  ),
-                )
-              else
-                Column(
-                  children: eventos.map((evento) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: CardEvento(evento: evento),
-                    );
-                  }).toList(),
-                ),
-
-              const SizedBox(height: 90),
             ],
+          ),
+        ),
+      ),
+    ),
+  ),
+),
+
+body: Align(
+  alignment: Alignment.topCenter,
+  child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 390,
+          ),
+          child: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 28),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 24),
+
+                  const Text(
+                    'Agenda',
+                    style: TextStyle(
+                      fontFamily: 'SpaceGrotesk',
+                      color: Colors.black,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  _Calendario(
+                    mesAtual: mesAtual,
+                    dataSelecionada: dataSelecionada,
+                    onVoltarMes: voltarMes,
+                    onAvancarMes: avancarMes,
+                    onSelecionarData: selecionarData,
+                  ),
+
+                  const SizedBox(height: 22),
+
+                  const Text(
+                    'EVENTOS NA DATA',
+                    style: TextStyle(
+                      fontFamily: 'SpaceGrotesk',
+                      color: Color(0xFF2C2421),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  if (eventosNaData.isEmpty)
+                    const Text(
+                      'Não há eventos para essa data.',
+                      style: TextStyle(
+                        fontFamily: 'SpaceGrotesk',
+                        color: Color(0xFF9A948F),
+                        fontSize: 13,
+                      ),
+                    )
+                  else
+                    Column(
+                      children: eventosNaData.map((evento) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: CardEvento(evento: evento),
+                        );
+                      }).toList(),
+                    ),
+
+                  const SizedBox(height: 18),
+
+                  const Text(
+                    'EVENTOS NO MÊS',
+                    style: TextStyle(
+                      fontFamily: 'SpaceGrotesk',
+                      color: Color(0xFF2C2421),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  if (eventosNoMes.isEmpty)
+                    const Text(
+                      'Não há eventos neste mês.',
+                      style: TextStyle(
+                        fontFamily: 'SpaceGrotesk',
+                        color: Color(0xFF9A948F),
+                        fontSize: 13,
+                      ),
+                    )
+                  else
+                    Column(
+                      children: eventosNoMes.map((evento) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: CardEvento(evento: evento),
+                        );
+                      }).toList(),
+                    ),
+
+                  const SizedBox(height: 90),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -143,13 +245,51 @@ class _AgendaState extends State<Agenda> {
 }
 
 class _Calendario extends StatelessWidget {
-  final int diaSelecionado;
-  final Function(int dia) onSelecionarDia;
+  final DateTime mesAtual;
+  final DateTime dataSelecionada;
+  final VoidCallback onVoltarMes;
+  final VoidCallback onAvancarMes;
+  final Function(DateTime data) onSelecionarData;
 
   const _Calendario({
-    required this.diaSelecionado,
-    required this.onSelecionarDia,
+    required this.mesAtual,
+    required this.dataSelecionada,
+    required this.onVoltarMes,
+    required this.onAvancarMes,
+    required this.onSelecionarData,
   });
+
+  String nomeMes(int mes) {
+    const meses = [
+      'janeiro',
+      'fevereiro',
+      'março',
+      'abril',
+      'maio',
+      'junho',
+      'julho',
+      'agosto',
+      'setembro',
+      'outubro',
+      'novembro',
+      'dezembro',
+    ];
+
+    return meses[mes - 1];
+  }
+
+  List<DateTime> gerarDiasDoCalendario() {
+    final primeiroDiaDoMes = DateTime(mesAtual.year, mesAtual.month, 1);
+    final primeiroDiaSemana = primeiroDiaDoMes.weekday % 7;
+
+    final inicioCalendario = primeiroDiaDoMes.subtract(
+      Duration(days: primeiroDiaSemana),
+    );
+
+    return List.generate(35, (index) {
+      return inicioCalendario.add(Duration(days: index));
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -163,17 +303,11 @@ class _Calendario extends StatelessWidget {
       'sáb',
     ];
 
-    final List<int> diasMes = [
-      1, 2, 3, 4, 5, 6, 7,
-      8, 9, 10, 11, 12, 13, 14,
-      15, 16, 17, 18, 19, 20, 21,
-      22, 23, 24, 25, 26, 27, 28,
-      29, 30, 31, 1, 2, 3, 4,
-    ];
+    final diasCalendario = gerarDiasDoCalendario();
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(18, 14, 18, 18),
+      padding: const EdgeInsets.fromLTRB(14, 8, 14, 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
@@ -183,47 +317,54 @@ class _Calendario extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.chevron_left,
-                  color: Colors.black,
-                  size: 22,
+          SizedBox(
+            height: 34,
+            child: Row(
+              children: [
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: onVoltarMes,
+                  icon: const Icon(
+                    Icons.chevron_left,
+                    color: Colors.black,
+                    size: 22,
+                  ),
                 ),
-              ),
 
-              const Expanded(
-                child: Center(
-                  child: Text(
-                    'março 2026',
-                    style: TextStyle(
-                      fontFamily: 'SpaceGrotesk',
-                      color: Colors.black,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w400,
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      '${nomeMes(mesAtual.month)} ${mesAtual.year}',
+                      style: const TextStyle(
+                        fontFamily: 'SpaceGrotesk',
+                        color: Colors.black,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.chevron_right,
-                  color: Colors.black,
-                  size: 22,
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: onAvancarMes,
+                  icon: const Icon(
+                    Icons.chevron_right,
+                    color: Colors.black,
+                    size: 22,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
 
+          const SizedBox(height: 4),
+
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: diasSemana.map((dia) {
               return SizedBox(
-                width: 32,
+                width: 34,
                 child: Center(
                   child: Text(
                     dia,
@@ -231,7 +372,6 @@ class _Calendario extends StatelessWidget {
                       fontFamily: 'SpaceGrotesk',
                       color: Color(0xFF9A948F),
                       fontSize: 12,
-                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ),
@@ -244,38 +384,51 @@ class _Calendario extends StatelessWidget {
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: diasMes.length,
+            itemCount: diasCalendario.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 7,
               mainAxisSpacing: 8,
               crossAxisSpacing: 4,
-              childAspectRatio: 1,
+              childAspectRatio: 1.15,
             ),
             itemBuilder: (context, index) {
-              final dia = diasMes[index];
-              final selecionado = dia == diaSelecionado && index < 31;
+              final dia = diasCalendario[index];
+
+              final bool selecionado =
+                  dia.year == dataSelecionada.year &&
+                  dia.month == dataSelecionada.month &&
+                  dia.day == dataSelecionada.day;
+
+              final bool pertenceAoMesAtual =
+                  dia.month == mesAtual.month && dia.year == mesAtual.year;
 
               return GestureDetector(
                 onTap: () {
-                  if (index < 31) {
-                    onSelecionarDia(dia);
-                  }
+                  onSelecionarData(dia);
                 },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: selecionado
-                        ? const Color(0xFFE76E50)
-                        : Colors.transparent,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(
-                      dia.toString(),
-                      style: TextStyle(
-                        fontFamily: 'SpaceGrotesk',
-                        color: selecionado ? Colors.white : Colors.black,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
+                child: Center(
+                  child: Container(
+                    width: 26,
+                    height: 26,
+                    decoration: BoxDecoration(
+                      color: selecionado
+                          ? const Color(0xFFE76E50)
+                          : Colors.transparent,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        dia.day.toString(),
+                        style: TextStyle(
+                          fontFamily: 'SpaceGrotesk',
+                          color: selecionado
+                              ? Colors.white
+                              : pertenceAoMesAtual
+                                  ? Colors.black
+                                  : const Color(0xFF9A948F),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
                     ),
                   ),
@@ -297,8 +450,29 @@ class CardEvento extends StatelessWidget {
     required this.evento,
   });
 
+  String nomeMesCurto(int mes) {
+    const meses = [
+      'jan',
+      'fev',
+      'mar',
+      'abr',
+      'mai',
+      'jun',
+      'jul',
+      'ago',
+      'set',
+      'out',
+      'nov',
+      'dez',
+    ];
+
+    return meses[mes - 1];
+  }
+
   @override
   Widget build(BuildContext context) {
+    final dataFormatada = '${evento.data.day} ${nomeMesCurto(evento.data.month)}';
+
     return Container(
       height: 58,
       padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -343,15 +517,14 @@ class CardEvento extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
 
                 Text(
-                  '${evento.data}    ${evento.horario}',
+                  '$dataFormatada    ${evento.horario}',
                   style: const TextStyle(
                     fontFamily: 'SpaceGrotesk',
                     color: Color(0xFF9A948F),
                     fontSize: 12,
-                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ],
@@ -372,19 +545,58 @@ class CardEvento extends StatelessWidget {
     );
   }
 }
+class _ItemMenu extends StatelessWidget {
+  final IconData icone;
+  final String texto;
+  final bool selecionado;
 
+  const _ItemMenu({
+    required this.icone,
+    required this.texto,
+    required this.selecionado,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cor = selecionado
+        ? const Color(0xFFE76E50)
+        : const Color(0xFF8C7B73);
+
+    return SizedBox(
+      width: 58,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icone,
+            color: cor,
+            size: 20,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            texto,
+            style: TextStyle(
+              fontFamily: 'SpaceGrotesk',
+              color: cor,
+              fontSize: 10,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 class EventoAgenda {
   final String titulo;
-  final String data;
+  final DateTime data;
   final String horario;
   final int progresso;
-  final int dia;
 
   EventoAgenda({
     required this.titulo,
     required this.data,
     required this.horario,
     required this.progresso,
-    required this.dia,
   });
 }
