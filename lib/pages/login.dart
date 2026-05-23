@@ -147,7 +147,7 @@ class _LoginState extends State<Login> {
                             text: 'Nao tem conta? ',
                             style: TextStyle(
                               fontFamily: 'SpaceGrotesk',
-                              fontSize: 14,
+                              fontSize: 15,
                               color: Color(0xFF9A948F),
                             ),
                             children: [
@@ -166,7 +166,7 @@ class _LoginState extends State<Login> {
                   ],
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 42),
             ],
           ),
         ),

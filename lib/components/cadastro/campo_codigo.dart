@@ -41,7 +41,7 @@ class CamposCodigo extends StatelessWidget {
 
               style: const TextStyle(
                 fontFamily: 'SpaceGrotesk',
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: FontWeight.w500,
               ),
 
