@@ -70,173 +70,166 @@ class _AgendaState extends State<Agenda> {
 
   @override
   Widget build(BuildContext context) {
-return Scaffold(
-  backgroundColor: const Color(0xFFF5F3F1),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F3F1),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 390),
+          child: Stack(
+            children: [
+              SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(28, 48, 28, 140),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Agenda',
+                        style: TextStyle(
+                          fontFamily: 'SpaceGrotesk',
+                          color: Colors.black,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
 
-  floatingActionButton: FloatingActionButton(
-    onPressed: () {},
-    backgroundColor: const Color(0xFFE76E50),
-    elevation: 0,
-    shape: const CircleBorder(),
-    child: const Icon(
-      Icons.add,
-      color: Colors.white,
-      size: 32,
-    ),
-  ),
+                      const SizedBox(height: 16),
 
-  floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+                      _Calendario(
+                        mesAtual: mesAtual,
+                        dataSelecionada: dataSelecionada,
+                        onVoltarMes: voltarMes,
+                        onAvancarMes: avancarMes,
+                        onSelecionarData: selecionarData,
+                      ),
 
-  bottomNavigationBar: Container(
-  color: const Color(0xFFF5F3F1),
-  child: Center(
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(
-        maxWidth: 390,
-      ),
-      child: BottomAppBar(
-        color: const Color(0xFFF5F3F1),
-        elevation: 0,
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8,
-        child: SizedBox(
-          height: 68,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: const [
-              _ItemMenu(
-                icone: Icons.home_outlined,
-                texto: 'Início',
-                selecionado: false,
+                      const SizedBox(height: 22),
+
+                      const Text(
+                        'EVENTOS NA DATA',
+                        style: TextStyle(
+                          fontFamily: 'SpaceGrotesk',
+                          color: Color(0xFF2C2421),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      if (eventosNaData.isEmpty)
+                        const Text(
+                          'Não há eventos para essa data.',
+                          style: TextStyle(
+                            fontFamily: 'SpaceGrotesk',
+                            color: Color(0xFF9A948F),
+                            fontSize: 13,
+                          ),
+                        )
+                      else
+                        Column(
+                          children: eventosNaData.map((evento) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: CardEvento(evento: evento),
+                            );
+                          }).toList(),
+                        ),
+
+                      const SizedBox(height: 18),
+
+                      const Text(
+                        'EVENTOS NO MÊS',
+                        style: TextStyle(
+                          fontFamily: 'SpaceGrotesk',
+                          color: Color(0xFF2C2421),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      if (eventosNoMes.isEmpty)
+                        const Text(
+                          'Não há eventos neste mês.',
+                          style: TextStyle(
+                            fontFamily: 'SpaceGrotesk',
+                            color: Color(0xFF9A948F),
+                            fontSize: 13,
+                          ),
+                        )
+                      else
+                        Column(
+                          children: eventosNoMes.map((evento) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: CardEvento(evento: evento),
+                            );
+                          }).toList(),
+                        ),
+                    ],
+                  ),
+                ),
               ),
-              _ItemMenu(
-                icone: Icons.calendar_today_outlined,
-                texto: 'Agenda',
-                selecionado: true,
+
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  height: 86,
+                  color: const Color(0xFFF5F3F1),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: const [
+                      _ItemMenu(
+                        icone: Icons.home_outlined,
+                        texto: 'Início',
+                        selecionado: false,
+                      ),
+                      _ItemMenu(
+                        icone: Icons.calendar_today_outlined,
+                        texto: 'Agenda',
+                        selecionado: true,
+                      ),
+                      SizedBox(width: 58),
+                      _ItemMenu(
+                        icone: Icons.check_box_outlined,
+                        texto: 'Tarefas',
+                        selecionado: false,
+                      ),
+                      _ItemMenu(
+                        icone: Icons.person_outline,
+                        texto: 'Perfil',
+                        selecionado: false,
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              SizedBox(width: 56),
-              _ItemMenu(
-                icone: Icons.check_box_outlined,
-                texto: 'Tarefas',
-                selecionado: false,
-              ),
-              _ItemMenu(
-                icone: Icons.person_outline,
-                texto: 'Perfil',
-                selecionado: false,
+
+              Positioned(
+                bottom: 50,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFE76E50),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 32,
+                    ),
+                  ),
+                ),
               ),
             ],
-          ),
-        ),
-      ),
-    ),
-  ),
-),
-
-body: Align(
-  alignment: Alignment.topCenter,
-  child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 390,
-          ),
-          child: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 24),
-
-                  const Text(
-                    'Agenda',
-                    style: TextStyle(
-                      fontFamily: 'SpaceGrotesk',
-                      color: Colors.black,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  _Calendario(
-                    mesAtual: mesAtual,
-                    dataSelecionada: dataSelecionada,
-                    onVoltarMes: voltarMes,
-                    onAvancarMes: avancarMes,
-                    onSelecionarData: selecionarData,
-                  ),
-
-                  const SizedBox(height: 22),
-
-                  const Text(
-                    'EVENTOS NA DATA',
-                    style: TextStyle(
-                      fontFamily: 'SpaceGrotesk',
-                      color: Color(0xFF2C2421),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  if (eventosNaData.isEmpty)
-                    const Text(
-                      'Não há eventos para essa data.',
-                      style: TextStyle(
-                        fontFamily: 'SpaceGrotesk',
-                        color: Color(0xFF9A948F),
-                        fontSize: 13,
-                      ),
-                    )
-                  else
-                    Column(
-                      children: eventosNaData.map((evento) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: CardEvento(evento: evento),
-                        );
-                      }).toList(),
-                    ),
-
-                  const SizedBox(height: 18),
-
-                  const Text(
-                    'EVENTOS NO MÊS',
-                    style: TextStyle(
-                      fontFamily: 'SpaceGrotesk',
-                      color: Color(0xFF2C2421),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  if (eventosNoMes.isEmpty)
-                    const Text(
-                      'Não há eventos neste mês.',
-                      style: TextStyle(
-                        fontFamily: 'SpaceGrotesk',
-                        color: Color(0xFF9A948F),
-                        fontSize: 13,
-                      ),
-                    )
-                  else
-                    Column(
-                      children: eventosNoMes.map((evento) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: CardEvento(evento: evento),
-                        );
-                      }).toList(),
-                    ),
-
-                  const SizedBox(height: 90),
-                ],
-              ),
-            ),
           ),
         ),
       ),
@@ -471,7 +464,8 @@ class CardEvento extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dataFormatada = '${evento.data.day} ${nomeMesCurto(evento.data.month)}';
+    final dataFormatada =
+        '${evento.data.day} ${nomeMesCurto(evento.data.month)}';
 
     return Container(
       height: 58,
@@ -545,6 +539,7 @@ class CardEvento extends StatelessWidget {
     );
   }
 }
+
 class _ItemMenu extends StatelessWidget {
   final IconData icone;
   final String texto;
@@ -587,6 +582,7 @@ class _ItemMenu extends StatelessWidget {
     );
   }
 }
+
 class EventoAgenda {
   final String titulo;
   final DateTime data;
