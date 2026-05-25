@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../components/botao.dart';
 import '../components/cadastro/card_cadastro.dart';
 import '../components/cadastro/campo_codigo.dart';
+import 'tarefas/tarefas_page.dart';
 
 class ConfirmarEmail extends StatefulWidget {
   final String email;
@@ -130,7 +131,15 @@ class _ConfirmarEmailState extends State<ConfirmarEmail> {
 
                       BotaoLogin(
                         texto: 'Confirmar e entrar',
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const TarefasPage(),
+                            ),
+                            (_) => false,
+                          );
+                        },
                         backgroundColor: const Color(0xFFE76E50),
                       ),
 
