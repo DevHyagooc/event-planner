@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../components/botao.dart';
 import 'cadastro.dart';
-import 'tarefas/tarefas_page.dart';
+import 'login.dart';
+import 'profile.dart';
 
 class PaginaInicial extends StatelessWidget {
   const PaginaInicial({super.key});
@@ -39,7 +40,7 @@ class PaginaInicial extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: 'SpaceGrotesk',
                   color: Color(0xFFE76E50),
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.w500,
                   height: 1.0,
                   letterSpacing: -0.32,
@@ -82,7 +83,7 @@ class PaginaInicial extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const TarefasPage()),
+                    MaterialPageRoute(builder: (_) => const Login()),
                   );
                 },
                 backgroundColor: const Color(0xFFE76E50),
@@ -109,6 +110,20 @@ class PaginaInicial extends StatelessWidget {
                 onPressed: () {},
                 isOutlined: true,
                 isGoogle: true,
+                backgroundColor: const Color(0xFFF1EEEA),
+                textColor: Colors.black,
+              ),
+
+              const SizedBox(height: 12),
+
+              BotaoLogin(
+                texto: 'Perfil',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const Profile()),
+                  );
+                },
                 backgroundColor: const Color(0xFFF1EEEA),
                 textColor: Colors.black,
               ),

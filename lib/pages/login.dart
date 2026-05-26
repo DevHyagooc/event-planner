@@ -1,66 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../components/botao.dart';
 import '../components/cadastro/campo_texto_cadastro.dart';
 import '../components/cadastro/card_cadastro.dart';
 import '../components/card_erro.dart';
 import '../services/validacao.dart';
-import 'confirmar_email.dart';
+import 'cadastro.dart';
 
-class Cadastro extends StatefulWidget {
-  const Cadastro({super.key});
+class Login extends StatefulWidget {
+  const Login({super.key});
 
   @override
-  State<Cadastro> createState() => _CadastroState();
+  State<Login> createState() => _LoginState();
 }
 
-class _CadastroState extends State<Cadastro> {
-  final nomeController = TextEditingController();
-  final cpfController = TextEditingController();
+class _LoginState extends State<Login> {
   final emailController = TextEditingController();
   final senhaController = TextEditingController();
-  final confirmarSenhaController = TextEditingController();
 
-  final cpfFormatter = MaskTextInputFormatter(
-    mask: '###.###.###-##',
-    filter: {"#": RegExp(r'[0-9]')},
-  );
+  @override
+  void dispose() {
+    emailController.dispose();
+    senhaController.dispose();
+    super.dispose();
+  }
 
-  void cadastrar() {
-    if (nomeController.text.isEmpty ||
-        cpfController.text.isEmpty ||
-        emailController.text.isEmpty ||
-        senhaController.text.isEmpty ||
-        confirmarSenhaController.text.isEmpty) {
-      mostrarErro('Preencha todos os dados para realizar o cadastro!');
+  void entrar() {
+    if (emailController.text.isEmpty || senhaController.text.isEmpty) {
+      mostrarErro('Preencha e-mail e senha para entrar.');
       return;
     }
 
     if (!Validators.emailValido(emailController.text)) {
-      mostrarErro('Digite um e-mail válido.');
+      mostrarErro('Digite um e-mail valido.');
       return;
     }
-
-    if (!Validators.senhaValida(
-      senhaController.text,
-      confirmarSenhaController.text,
-    )) {
-      mostrarErro('As senhas não coincidem.');
-      return;
-    }
-
-    if (!Validators.cpfValido(cpfController.text)) {
-      mostrarErro('CPF inválido.');
-      return;
-    }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ConfirmarEmail(email: emailController.text),
-      ),
-    );
   }
 
   void mostrarErro(String mensagem) {
@@ -74,53 +48,39 @@ class _CadastroState extends State<Cadastro> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F3F1),
-
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
-
           child: Column(
             children: [
               const SizedBox(height: 18),
-
               Align(
                 alignment: Alignment.centerLeft,
                 child: IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-
+                  onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.arrow_back, color: Colors.black),
                 ),
               ),
-
-              const SizedBox(height: 10),
-
+              const SizedBox(height: 70),
               CardCadastro(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-
                   children: [
                     Container(
                       width: 42,
                       height: 42,
-
                       decoration: BoxDecoration(
                         color: const Color(0xFFFAE2DC),
                         borderRadius: BorderRadius.circular(20),
                       ),
-
                       child: const Icon(
-                        Icons.person_add_alt_1_outlined,
+                        Icons.login_outlined,
                         color: Color(0xFFE76E50),
                       ),
                     ),
-
                     const SizedBox(height: 18),
-
                     const Text(
-                      'Criar conta',
-
+                      'Entrar',
                       style: TextStyle(
                         fontFamily: 'SpaceGrotesk',
                         fontSize: 24,
@@ -128,92 +88,71 @@ class _CadastroState extends State<Cadastro> {
                         color: Colors.black,
                       ),
                     ),
-
                     const SizedBox(height: 8),
-
                     const Text(
-                      'Monte seu acesso e confirme seu e-mail com o código enviado.',
-
+                      'Acesse sua conta para continuar organizando seus eventos.',
                       style: TextStyle(
                         fontFamily: 'SpaceGrotesk',
                         fontSize: 15,
-                        color: Color(0xFF8C7B73),
+                        color: Color(0xFF8A8580),
                       ),
                     ),
-
                     const SizedBox(height: 22),
-
-                    CampoTextoCadastro(
-                      controller: nomeController,
-                      label: 'Nome',
-                      placeholder: 'Digite seu nome',
-                    ),
-
-                    const SizedBox(height: 14),
-
-                    CampoTextoCadastro(
-                      controller: cpfController,
-                      label: 'CPF',
-                      placeholder: 'Digite seu cpf',
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [cpfFormatter],
-                    ),
-
-                    const SizedBox(height: 14),
-
                     CampoTextoCadastro(
                       controller: emailController,
                       label: 'E-mail',
                       placeholder: 'Digite seu email',
                       keyboardType: TextInputType.emailAddress,
                     ),
-
                     const SizedBox(height: 14),
-
                     CampoTextoCadastro(
                       controller: senhaController,
                       label: 'Senha',
                       placeholder: 'Digite sua senha',
                       obscureText: true,
                     ),
-
-                    const SizedBox(height: 14),
-
-                    CampoTextoCadastro(
-                      controller: confirmarSenhaController,
-                      label: 'Confirmar senha',
-                      placeholder: 'Digite sua senha',
-                      obscureText: true,
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: GestureDetector(
+                        onTap: () {},
+                        child: const Text(
+                          'Esqueci minha senha',
+                          style: TextStyle(
+                            fontFamily: 'SpaceGrotesk',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFFE76E50),
+                          ),
+                        ),
+                      ),
                     ),
-
                     const SizedBox(height: 18),
-
                     BotaoLogin(
                       texto: 'Entrar',
-                      onPressed: cadastrar,
+                      onPressed: entrar,
                       backgroundColor: const Color(0xFFE76E50),
                     ),
-
                     const SizedBox(height: 14),
-
                     Center(
                       child: GestureDetector(
-                        onTap: () => Navigator.pop(context),
-
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (_) => const Cadastro()),
+                          );
+                        },
                         child: const Text.rich(
                           TextSpan(
-                            text: 'Já tem conta? ',
-
+                            text: 'Nao tem conta? ',
                             style: TextStyle(
                               fontFamily: 'SpaceGrotesk',
-                              fontSize: 14,
-                              color: Color(0xFF8C7B73),
+                              fontSize: 15,
+                              color: Color(0xFF9A948F),
                             ),
-
                             children: [
                               TextSpan(
-                                text: 'Fazer login',
-
+                                text: 'Cadastrar-se',
                                 style: TextStyle(
                                   color: Color(0xFFE76E50),
                                   fontWeight: FontWeight.w700,
@@ -227,8 +166,7 @@ class _CadastroState extends State<Cadastro> {
                   ],
                 ),
               ),
-
-              const SizedBox(height: 30),
+              const SizedBox(height: 42),
             ],
           ),
         ),
