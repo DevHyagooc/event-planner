@@ -2,24 +2,19 @@ import 'package:flutter/material.dart';
 import '../components/botao.dart';
 import '../components/cadastro/card_cadastro.dart';
 import '../components/cadastro/campo_codigo.dart';
+import 'home.dart';
 
 class ConfirmarEmail extends StatefulWidget {
   final String email;
 
-  const ConfirmarEmail({
-    super.key,
-    required this.email,
-  });
+  const ConfirmarEmail({super.key, required this.email});
 
   @override
   State<ConfirmarEmail> createState() => _ConfirmarEmailState();
 }
 
 class _ConfirmarEmailState extends State<ConfirmarEmail> {
-  final controllers = List.generate(
-    5,
-    (_) => TextEditingController(),
-  );
+  final controllers = List.generate(5, (_) => TextEditingController());
 
   @override
   void dispose() {
@@ -122,15 +117,18 @@ class _ConfirmarEmailState extends State<ConfirmarEmail> {
 
                       const SizedBox(height: 12),
 
-                      CamposCodigo(
-                        controllers: controllers,
-                      ),
+                      CamposCodigo(controllers: controllers),
 
                       const SizedBox(height: 18),
 
                       BotaoLogin(
                         texto: 'Confirmar e entrar',
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (_) => const Home()),
+                          );
+                        },
                         backgroundColor: const Color(0xFFE76E50),
                       ),
 
