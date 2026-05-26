@@ -14,9 +14,7 @@ class HeaderHome extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 18),
       decoration: const BoxDecoration(
         color: bg,
-        border: Border(
-          bottom: BorderSide(color: Color(0xFFE8E2DE), width: 1),
-        ),
+        border: Border(bottom: BorderSide(color: Color(0xFFE8E2DE), width: 1)),
       ),
       child: Row(
         children: [
