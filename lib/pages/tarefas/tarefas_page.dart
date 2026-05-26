@@ -244,112 +244,106 @@ class _TarefasPageState extends State<TarefasPage> {
   Widget build(BuildContext context) {
     final visibleEvents = _visibleEvents;
 
-    return Scaffold(
-      backgroundColor: TaskPalette.background,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              const Text(
-                'Tarefas',
-                style: TextStyle(
-                  fontFamily: 'SpaceGrotesk',
-                  fontSize: 34,
-                  fontWeight: FontWeight.w700,
-                  color: TaskPalette.text,
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            const Text(
+              'Tarefas',
+              style: TextStyle(
+                fontFamily: 'SpaceGrotesk',
+                fontSize: 34,
+                fontWeight: FontWeight.w700,
+                color: TaskPalette.text,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                TaskFilterChip(
+                  label: 'Todas',
+                  isSelected: _selectedFilter == TaskFilter.all,
+                  onTap: () => setState(() => _selectedFilter = TaskFilter.all),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  TaskFilterChip(
-                    label: 'Todas',
-                    isSelected: _selectedFilter == TaskFilter.all,
-                    onTap: () => setState(() => _selectedFilter = TaskFilter.all),
-                  ),
-                  const SizedBox(width: 10),
-                  TaskFilterChip(
-                    label: 'Pendentes',
-                    isSelected: _selectedFilter == TaskFilter.pending,
-                    onTap: () => setState(() => _selectedFilter = TaskFilter.pending),
-                  ),
-                  const SizedBox(width: 10),
-                  TaskFilterChip(
-                    label: 'Concluídas',
-                    isSelected: _selectedFilter == TaskFilter.completed,
-                    onTap: () => setState(() => _selectedFilter = TaskFilter.completed),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              if (visibleEvents.isEmpty)
-                const TaskEmptyState()
-              else
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.only(bottom: 24),
-                    itemCount: visibleEvents.length,
-                    itemBuilder: (context, index) {
-                      final event = visibleEvents[index];
+                const SizedBox(width: 10),
+                TaskFilterChip(
+                  label: 'Pendentes',
+                  isSelected: _selectedFilter == TaskFilter.pending,
+                  onTap: () => setState(() => _selectedFilter = TaskFilter.pending),
+                ),
+                const SizedBox(width: 10),
+                TaskFilterChip(
+                  label: 'Concluídas',
+                  isSelected: _selectedFilter == TaskFilter.completed,
+                  onTap: () => setState(() => _selectedFilter = TaskFilter.completed),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (visibleEvents.isEmpty)
+              const TaskEmptyState()
+            else
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  itemCount: visibleEvents.length,
+                  itemBuilder: (context, index) {
+                    final event = visibleEvents[index];
 
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            GestureDetector(
-                              onTap: () => _openEvent(
-                                _events.firstWhere((item) => item.id == event.id),
-                              ),
-                              child: Text(
-                                event.title,
-                                style: const TextStyle(
-                                  fontFamily: 'SpaceGrotesk',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w400,
-                                  color: TaskPalette.muted,
-                                ),
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                            onTap: () => _openEvent(
+                              _events.firstWhere((item) => item.id == event.id),
+                            ),
+                            child: Text(
+                              event.title,
+                              style: const TextStyle(
+                                fontFamily: 'SpaceGrotesk',
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                                color: TaskPalette.muted,
                               ),
                             ),
-                            const SizedBox(height: 10),
-                            ...event.tasks.map(
-                              (task) => Padding(
-                                padding: const EdgeInsets.only(bottom: 10),
-                                child: EventTaskCard(
+                          ),
+                          const SizedBox(height: 10),
+                          ...event.tasks.map(
+                            (task) => Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: EventTaskCard(
+                                task: task,
+                                onTap: () => _openEvent(
+                                  _events.firstWhere((item) => item.id == event.id),
+                                ),
+                                onToggle: () => _toggleTask(
+                                  _events.firstWhere((item) => item.id == event.id),
+                                  task,
+                                ),
+                                onEdit: () => _openTaskFormForEvent(
+                                  _events.firstWhere((item) => item.id == event.id),
                                   task: task,
-                                  onTap: () => _openEvent(
-                                    _events.firstWhere((item) => item.id == event.id),
-                                  ),
-                                  onToggle: () => _toggleTask(
-                                    _events.firstWhere((item) => item.id == event.id),
-                                    task,
-                                  ),
-                                  onEdit: () => _openTaskFormForEvent(
-                                    _events.firstWhere((item) => item.id == event.id),
-                                    task: task,
-                                  ),
-                                  onDelete: () => _deleteTask(
-                                    _events.firstWhere((item) => item.id == event.id),
-                                    task,
-                                  ),
+                                ),
+                                onDelete: () => _deleteTask(
+                                  _events.firstWhere((item) => item.id == event.id),
+                                  task,
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
-      ),
-      bottomNavigationBar: TaskBottomNavigation(
-        onAddTap: _handleAddFromBottomNavigation,
       ),
     );
   }

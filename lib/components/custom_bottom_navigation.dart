@@ -15,78 +15,120 @@ class CustomBottomNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const coral = Color(0xFFE76E50);
-    const muted = Color(0xFF8D7F78);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: 64,
-          child: Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.topCenter,
-            children: [
-              BottomNavigationBar(
-                currentIndex: currentIndex,
-                onTap: onTap,
-                type: BottomNavigationBarType.fixed,
-                backgroundColor: Colors.transparent,
-                selectedItemColor: coral,
-                unselectedItemColor: muted,
-                selectedFontSize: 11,
-                unselectedFontSize: 11,
-                elevation: 0,
-                items: const [
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.home_outlined, size: 26),
-                    activeIcon: Icon(Icons.home, size: 26),
-                    label: 'Início',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.calendar_today_outlined, size: 22),
-                    activeIcon: Icon(Icons.calendar_today, size: 22),
-                    label: 'Agenda',
-                  ),
-                  BottomNavigationBarItem(icon: SizedBox.shrink(), label: ''),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.check_box_outlined, size: 24),
-                    activeIcon: Icon(Icons.check_box, size: 24),
-                    label: 'Tarefas',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.person_outline, size: 26),
-                    activeIcon: Icon(Icons.person, size: 26),
-                    label: 'Perfil',
+    return MediaQuery.removePadding(
+      context: context,
+      removeBottom: true,
+      child: SizedBox(
+        height: 86,
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.bottomCenter,
+          children: [
+            Container(
+              height: 56,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, -2),
                   ),
                 ],
               ),
-              Positioned(
-                top: -30,
-                child: GestureDetector(
-                  onTap: onAddTap,
-                  child: Container(
-                    width: 60,
-                    height: 60,
-                    decoration: const BoxDecoration(
-                      color: coral,
-                      shape: BoxShape.circle,
+              child: SafeArea(
+                top: false,
+                bottom: false,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildNavItem(
+                      0,
+                      Icons.home_outlined,
+                      Icons.home,
+                      'Início',
+                      26,
                     ),
-                    child: const Icon(Icons.add, color: Colors.white, size: 36),
-                  ),
+                    _buildNavItem(
+                      1,
+                      Icons.calendar_today_outlined,
+                      Icons.calendar_today,
+                      'Agenda',
+                      22,
+                    ),
+                    const SizedBox(width: 60),
+                    _buildNavItem(
+                      3,
+                      Icons.check_box_outlined,
+                      Icons.check_box,
+                      'Tarefas',
+                      24,
+                    ),
+                    _buildNavItem(
+                      4,
+                      Icons.person_outline,
+                      Icons.person,
+                      'Perfil',
+                      26,
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+            Positioned(
+              top: 0,
+              child: GestureDetector(
+                onTap: onAddTap,
+                behavior: HitTestBehavior.opaque,
+                child: Container(
+                  width: 60,
+                  height: 60,
+                  decoration: const BoxDecoration(
+                    color: coral,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.add, color: Colors.white, size: 36),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(
+    int index,
+    IconData icon,
+    IconData activeIcon,
+    String label,
+    double size,
+  ) {
+    final isSelected = currentIndex == index;
+    final color = isSelected
+        ? const Color(0xFFE76E50)
+        : const Color(0xFF8D7F78);
+
+    return Expanded(
+      child: InkWell(
+        onTap: () => onTap(index),
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(isSelected ? activeIcon : icon, color: color, size: size),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'SpaceGrotesk',
+                fontSize: 11,
+                color: color,
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -70,172 +70,96 @@ class _AgendaState extends State<Agenda> {
 
   @override
   Widget build(BuildContext context) {
-return Scaffold(
-  backgroundColor: const Color(0xFFF5F3F1),
-
-  floatingActionButton: FloatingActionButton(
-    onPressed: () {},
-    backgroundColor: const Color(0xFFE76E50),
-    elevation: 0,
-    shape: const CircleBorder(),
-    child: const Icon(
-      Icons.add,
-      color: Colors.white,
-      size: 32,
-    ),
-  ),
-
-  floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-
-  bottomNavigationBar: Container(
-  color: const Color(0xFFF5F3F1),
-  child: Center(
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(
-        maxWidth: 390,
-      ),
-      child: BottomAppBar(
-        color: const Color(0xFFF5F3F1),
-        elevation: 0,
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8,
-        child: SizedBox(
-          height: 68,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: const [
-              _ItemMenu(
-                icone: Icons.home_outlined,
-                texto: 'Início',
-                selecionado: false,
-              ),
-              _ItemMenu(
-                icone: Icons.calendar_today_outlined,
-                texto: 'Agenda',
-                selecionado: true,
-              ),
-              SizedBox(width: 56),
-              _ItemMenu(
-                icone: Icons.check_box_outlined,
-                texto: 'Tarefas',
-                selecionado: false,
-              ),
-              _ItemMenu(
-                icone: Icons.person_outline,
-                texto: 'Perfil',
-                selecionado: false,
-              ),
-            ],
-          ),
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxWidth: 390,
         ),
-      ),
-    ),
-  ),
-),
-
-body: Align(
-  alignment: Alignment.topCenter,
-  child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 390,
-          ),
-          child: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 24),
-
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 24),
+                const Text(
+                  'Agenda',
+                  style: TextStyle(
+                    fontFamily: 'SpaceGrotesk',
+                    color: Colors.black,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _Calendario(
+                  mesAtual: mesAtual,
+                  dataSelecionada: dataSelecionada,
+                  onVoltarMes: voltarMes,
+                  onAvancarMes: avancarMes,
+                  onSelecionarData: selecionarData,
+                ),
+                const SizedBox(height: 22),
+                const Text(
+                  'EVENTOS NA DATA',
+                  style: TextStyle(
+                    fontFamily: 'SpaceGrotesk',
+                    color: Color(0xFF2C2421),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                if (eventosNaData.isEmpty)
                   const Text(
-                    'Agenda',
+                    'Não há eventos para essa data.',
                     style: TextStyle(
                       fontFamily: 'SpaceGrotesk',
-                      color: Colors.black,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF9A948F),
+                      fontSize: 13,
                     ),
+                  )
+                else
+                  Column(
+                    children: eventosNaData.map((evento) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: CardEventoAgenda(evento: evento),
+                      );
+                    }).toList(),
                   ),
-
-                  const SizedBox(height: 16),
-
-                  _Calendario(
-                    mesAtual: mesAtual,
-                    dataSelecionada: dataSelecionada,
-                    onVoltarMes: voltarMes,
-                    onAvancarMes: avancarMes,
-                    onSelecionarData: selecionarData,
+                const SizedBox(height: 18),
+                const Text(
+                  'EVENTOS NO MÊS',
+                  style: TextStyle(
+                    fontFamily: 'SpaceGrotesk',
+                    color: Color(0xFF2C2421),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
-
-                  const SizedBox(height: 22),
-
+                ),
+                const SizedBox(height: 8),
+                if (eventosNoMes.isEmpty)
                   const Text(
-                    'EVENTOS NA DATA',
+                    'Não há eventos neste mês.',
                     style: TextStyle(
                       fontFamily: 'SpaceGrotesk',
-                      color: Color(0xFF2C2421),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF9A948F),
+                      fontSize: 13,
                     ),
+                  )
+                else
+                  Column(
+                    children: eventosNoMes.map((evento) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: CardEventoAgenda(evento: evento),
+                      );
+                    }).toList(),
                   ),
-
-                  const SizedBox(height: 8),
-
-                  if (eventosNaData.isEmpty)
-                    const Text(
-                      'Não há eventos para essa data.',
-                      style: TextStyle(
-                        fontFamily: 'SpaceGrotesk',
-                        color: Color(0xFF9A948F),
-                        fontSize: 13,
-                      ),
-                    )
-                  else
-                    Column(
-                      children: eventosNaData.map((evento) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: CardEvento(evento: evento),
-                        );
-                      }).toList(),
-                    ),
-
-                  const SizedBox(height: 18),
-
-                  const Text(
-                    'EVENTOS NO MÊS',
-                    style: TextStyle(
-                      fontFamily: 'SpaceGrotesk',
-                      color: Color(0xFF2C2421),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  if (eventosNoMes.isEmpty)
-                    const Text(
-                      'Não há eventos neste mês.',
-                      style: TextStyle(
-                        fontFamily: 'SpaceGrotesk',
-                        color: Color(0xFF9A948F),
-                        fontSize: 13,
-                      ),
-                    )
-                  else
-                    Column(
-                      children: eventosNoMes.map((evento) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: CardEvento(evento: evento),
-                        );
-                      }).toList(),
-                    ),
-
-                  const SizedBox(height: 90),
-                ],
-              ),
+                const SizedBox(height: 90),
+              ],
             ),
           ),
         ),
@@ -442,10 +366,10 @@ class _Calendario extends StatelessWidget {
   }
 }
 
-class CardEvento extends StatelessWidget {
+class CardEventoAgenda extends StatelessWidget {
   final EventoAgenda evento;
 
-  const CardEvento({
+  const CardEventoAgenda({
     super.key,
     required this.evento,
   });
