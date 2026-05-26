@@ -30,7 +30,7 @@ class _FormTarefaPageState extends State<FormTarefaPage> {
     _responsibleController = TextEditingController(
       text: widget.initialTask?.responsible ?? '',
     );
-    _selectedDate = widget.initialTask?.dueDate ?? DateTime(2026, 3, 17);
+    _selectedDate = widget.initialTask?.dueDate ?? DateTime.now();
   }
 
   @override
