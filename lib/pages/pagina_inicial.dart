@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../components/botao.dart';
 import 'cadastro.dart';
 import 'login.dart';
+import '../services/auth_service.dart';
+import 'home.dart';
 
 class PaginaInicial extends StatelessWidget {
   const PaginaInicial({super.key});
@@ -106,7 +108,16 @@ class PaginaInicial extends StatelessWidget {
 
               BotaoLogin(
                 texto: 'Entrar com o Google',
-                onPressed: () {},
+                onPressed: () async {
+                  final userCredential = await AuthService().entrarComGoogle();
+
+                  if (userCredential != null) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const Home()),
+                    );
+                  } 
+                },
                 isOutlined: true,
                 isGoogle: true,
                 backgroundColor: const Color(0xFFF1EEEA),
