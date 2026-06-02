@@ -5,6 +5,7 @@ import '../components/custom_bottom_navigation.dart';
 import '../components/card_evento.dart';
 import '../models/evento.dart';
 import 'editar_evento.dart';
+import 'profile.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -62,9 +63,7 @@ class _HomeState extends State<Home> {
   void _irParaEditar({Evento? evento}) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => EditarEvento(evento: evento),
-      ),
+      MaterialPageRoute(builder: (_) => EditarEvento(evento: evento)),
     );
   }
 
@@ -78,13 +77,7 @@ class _HomeState extends State<Home> {
         child: Column(
           children: [
             const HeaderHome(),
-            Expanded(
-              child: _currentIndex == 0
-                  ? _buildHomeContent()
-                  : Center(
-                      child: Text('Página ${_currentIndex + 1}'),
-                    ),
-            ),
+            Expanded(child: _buildPage()),
           ],
         ),
       ),
@@ -102,11 +95,25 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Widget _buildPage() {
+    switch (_currentIndex) {
+      case 0:
+        return _buildHomeContent();
+
+      case 1:
+        return const Center(child: Text('Página 2'));
+
+      case 4:
+        return const Profile();
+
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
   Widget _buildHomeContent() {
     if (_eventosMock.isEmpty) {
-      return EmptyStateHome(
-        onCreateEvent: () => _irParaEditar(),
-      );
+      return EmptyStateHome(onCreateEvent: () => _irParaEditar());
     }
 
     return Column(

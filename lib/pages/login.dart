@@ -5,6 +5,7 @@ import '../components/cadastro/campo_texto_cadastro.dart';
 import '../components/cadastro/card_cadastro.dart';
 import '../components/card_erro.dart';
 import '../services/validacao.dart';
+import 'home.dart';
 import 'cadastro.dart';
 
 class Login extends StatefulWidget {
@@ -35,6 +36,11 @@ class _LoginState extends State<Login> {
       mostrarErro('Digite um e-mail valido.');
       return;
     }
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const Home()),
+    );
   }
 
   void mostrarErro(String mensagem) {
