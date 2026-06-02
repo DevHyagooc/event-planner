@@ -14,87 +14,84 @@ class Profile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _bg,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                    child: Text(
-                      'Perfil',
-                      style: TextStyle(
-                        fontFamily: 'SpaceGrotesk',
-                        color: _foreground,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.5,
-                      ),
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                  child: Text(
+                    'Perfil',
+                    style: TextStyle(
+                      fontFamily: 'SpaceGrotesk',
+                      color: _foreground,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.5,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  _buildHeaderUsuario(),
-                  const SizedBox(height: 24),
-                  _buildGridEstatisticas(),
-                  const SizedBox(height: 24),
-                  _buildSecao(
-                    titulo: 'Geral',
-                    itens: [
-                      _ItemConfig(
-                        icone: Icons.settings_outlined,
-                        texto: 'Configurações',
-                        onTap: () {},
-                      ),
-                      _ItemConfig(
-                        icone: Icons.notifications_outlined,
-                        texto: 'Notificações',
-                        onTap: () {},
-                      ),
-                      _ItemConfig(
-                        icone: Icons.dark_mode_outlined,
-                        texto: 'Aparência',
-                        onTap: () {},
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  _buildSecao(
-                    titulo: 'Suporte',
-                    itens: [
-                      _ItemConfig(
-                        icone: Icons.shield_outlined,
-                        texto: 'Privacidade',
-                        onTap: () {},
-                      ),
-                      _ItemConfig(
-                        icone: Icons.help_outline,
-                        texto: 'Ajuda e Suporte',
-                        onTap: () {},
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  _buildBotaoSair(),
-                  const SizedBox(height: 16),
-                  const Center(
-                    child: Text(
-                      'EventPlanner v1.0.0',
-                      style: TextStyle(
-                        fontFamily: 'SpaceGrotesk',
-                        color: _muted,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                      ),
+                ),
+                const SizedBox(height: 16),
+                _buildHeaderUsuario(),
+                const SizedBox(height: 24),
+                _buildGridEstatisticas(),
+                const SizedBox(height: 24),
+                _buildSecao(
+                  titulo: 'Geral',
+                  itens: [
+                    _ItemConfig(
+                      icone: Icons.settings_outlined,
+                      texto: 'Configurações',
+                      onTap: () {},
+                    ),
+                    _ItemConfig(
+                      icone: Icons.notifications_outlined,
+                      texto: 'Notificações',
+                      onTap: () {},
+                    ),
+                    _ItemConfig(
+                      icone: Icons.dark_mode_outlined,
+                      texto: 'Aparência',
+                      onTap: () {},
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                _buildSecao(
+                  titulo: 'Suporte',
+                  itens: [
+                    _ItemConfig(
+                      icone: Icons.shield_outlined,
+                      texto: 'Privacidade',
+                      onTap: () {},
+                    ),
+                    _ItemConfig(
+                      icone: Icons.help_outline,
+                      texto: 'Ajuda e Suporte',
+                      onTap: () {},
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                _buildBotaoSair(),
+                const SizedBox(height: 16),
+                const Center(
+                  child: Text(
+                    'EventPlanner v1.0.0',
+                    style: TextStyle(
+                      fontFamily: 'SpaceGrotesk',
+                      color: _muted,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

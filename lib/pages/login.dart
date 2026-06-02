@@ -7,6 +7,7 @@ import '../components/card_erro.dart';
 import '../services/validacao.dart';
 import 'cadastro.dart';
 import 'esqueci_senha.dart';
+import 'home.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -35,6 +36,16 @@ class _LoginState extends State<Login> {
     if (!Validators.emailValido(emailController.text)) {
       mostrarErro('Digite um e-mail valido.');
       return;
+    }
+
+    if (emailController.text == 'admin@email.com' &&
+        senhaController.text == '123456') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const Home()),
+      );
+    } else {
+      mostrarErro('E-mail ou senha incorretos.');
     }
   }
 
