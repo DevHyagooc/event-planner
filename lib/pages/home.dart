@@ -5,6 +5,9 @@ import '../components/custom_bottom_navigation.dart';
 import '../components/card_evento.dart';
 import '../models/evento.dart';
 import 'editar_evento.dart';
+import 'agenda.dart';
+import 'tarefas/tarefas_page.dart';
+import 'profile.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -62,9 +65,7 @@ class _HomeState extends State<Home> {
   void _irParaEditar({Evento? evento}) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => EditarEvento(evento: evento),
-      ),
+      MaterialPageRoute(builder: (_) => EditarEvento(evento: evento)),
     );
   }
 
@@ -74,20 +75,7 @@ class _HomeState extends State<Home> {
 
     return Scaffold(
       backgroundColor: bg,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const HeaderHome(),
-            Expanded(
-              child: _currentIndex == 0
-                  ? _buildHomeContent()
-                  : Center(
-                      child: Text('Página ${_currentIndex + 1}'),
-                    ),
-            ),
-          ],
-        ),
-      ),
+      body: _buildBody(),
       bottomNavigationBar: CustomBottomNavigation(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -102,11 +90,31 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Widget _buildBody() {
+    switch (_currentIndex) {
+      case 0:
+        return SafeArea(
+          child: Column(
+            children: [
+              const HeaderHome(),
+              Expanded(child: _buildHomeContent()),
+            ],
+          ),
+        );
+      case 1:
+        return const Agenda();
+      case 3:
+        return const TarefasPage();
+      case 4:
+        return const Profile();
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
   Widget _buildHomeContent() {
     if (_eventosMock.isEmpty) {
-      return EmptyStateHome(
-        onCreateEvent: () => _irParaEditar(),
-      );
+      return EmptyStateHome(onCreateEvent: () => _irParaEditar());
     }
 
     return Column(
