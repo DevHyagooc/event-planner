@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'pagina_inicial.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
@@ -78,7 +79,7 @@ class Profile extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 24),
-                _buildBotaoSair(),
+                _buildBotaoSair(context),
                 const SizedBox(height: 16),
                 const Center(
                   child: Text(
@@ -216,7 +217,7 @@ class Profile extends StatelessWidget {
     );
   }
 
-  Widget _buildBotaoSair() {
+  Widget _buildBotaoSair(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: _card,
@@ -225,7 +226,12 @@ class Profile extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const PaginaInicial()),
+            (route) => false,
+          );
+        },
         child: const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
