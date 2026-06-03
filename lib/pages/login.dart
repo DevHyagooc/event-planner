@@ -6,6 +6,7 @@ import '../components/cadastro/card_cadastro.dart';
 import '../components/card_erro.dart';
 import '../services/validacao.dart';
 import 'cadastro.dart';
+import 'esqueci_senha.dart';
 import 'home.dart';
 
 class Login extends StatefulWidget {
@@ -126,7 +127,14 @@ class _LoginState extends State<Login> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const EsqueciSenha(),
+                            ),
+                          );
+                        },
                         child: const Text(
                           'Esqueci minha senha',
                           style: TextStyle(
