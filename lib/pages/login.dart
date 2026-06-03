@@ -4,7 +4,7 @@ import '../components/botao.dart';
 import '../components/cadastro/campo_texto_cadastro.dart';
 import '../components/cadastro/card_cadastro.dart';
 import '../components/card_erro.dart';
-import '../services/validacao.dart';
+import '../backend/auth/auth_service.dart';
 import 'cadastro.dart';
 import 'esqueci_senha.dart';
 import 'home.dart';
@@ -17,6 +17,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  final _authService = AuthService();
   final emailController = TextEditingController();
   final senhaController = TextEditingController();
 
@@ -27,25 +28,21 @@ class _LoginState extends State<Login> {
     super.dispose();
   }
 
-  void entrar() {
-    if (emailController.text.isEmpty || senhaController.text.isEmpty) {
-      mostrarErro('Preencha e-mail e senha para entrar.');
-      return;
-    }
+  Future<void> entrar() async {
+    final resultado = await _authService.entrar(
+      email: emailController.text,
+      senha: senhaController.text,
+    );
 
-    if (!Validators.emailValido(emailController.text)) {
-      mostrarErro('Digite um e-mail valido.');
-      return;
-    }
+    if (!mounted) return;
 
-    if (emailController.text == 'admin@email.com' &&
-        senhaController.text == '123456') {
+    if (resultado.sucesso) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const Home()),
       );
     } else {
-      mostrarErro('E-mail ou senha incorretos.');
+      mostrarErro(resultado.mensagem ?? 'Nao foi possivel entrar.');
     }
   }
 

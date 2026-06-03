@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import '../components/botao.dart';
 import '../components/cadastro/campo_texto_cadastro.dart';
 import '../components/cadastro/card_cadastro.dart';
 import '../components/card_erro.dart';
-import '../services/validacao.dart';
+import '../backend/auth/auth_service.dart';
 
 class EsqueciSenha extends StatefulWidget {
   const EsqueciSenha({super.key});
@@ -14,6 +15,7 @@ class EsqueciSenha extends StatefulWidget {
 }
 
 class _EsqueciSenhaState extends State<EsqueciSenha> {
+  final _authService = AuthService();
   final emailController = TextEditingController();
   bool linkEnviado = false;
 
@@ -23,16 +25,26 @@ class _EsqueciSenhaState extends State<EsqueciSenha> {
     super.dispose();
   }
 
-  void enviarLink() {
-    if (emailController.text.isEmpty) {
-      mostrarMensagem('Digite seu e-mail para receber o link.');
+  Future<void> enviarLink() async {
+    debugPrint(
+      '[EsqueciSenha] Solicitando envio de recuperacao para ${emailController.text}.',
+    );
+
+    final resultado = await _authService.enviarRecuperacaoSenha(
+      emailController.text,
+    );
+
+    if (!mounted) return;
+
+    if (!resultado.sucesso) {
+      debugPrint(
+        '[EsqueciSenha] Falha ao enviar recuperacao: ${resultado.mensagem}',
+      );
+      mostrarMensagem(resultado.mensagem ?? 'Nao foi possivel enviar o link.');
       return;
     }
 
-    if (!Validators.emailValido(emailController.text)) {
-      mostrarMensagem('Digite um e-mail valido.');
-      return;
-    }
+    debugPrint('[EsqueciSenha] Recuperacao enviada com sucesso para o sender.');
 
     setState(() {
       linkEnviado = true;
@@ -60,10 +72,7 @@ class _EsqueciSenhaState extends State<EsqueciSenha> {
                 alignment: Alignment.centerLeft,
                 child: IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(
-                    Icons.arrow_back,
-                    color: Color(0xFF2C2421),
-                  ),
+                  icon: const Icon(Icons.arrow_back, color: Color(0xFF2C2421)),
                 ),
               ),
               SizedBox(height: MediaQuery.of(context).size.height * 0.23),
@@ -118,9 +127,7 @@ class _EsqueciSenhaState extends State<EsqueciSenha> {
                         decoration: BoxDecoration(
                           color: const Color(0xFFFAF8F6),
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(
-                            color: const Color(0xFFE6E1DC),
-                          ),
+                          border: Border.all(color: const Color(0xFFE6E1DC)),
                         ),
                         child: Text.rich(
                           TextSpan(

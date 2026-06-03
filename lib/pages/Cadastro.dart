@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../components/botao.dart';
 import '../components/cadastro/campo_texto_cadastro.dart';
 import '../components/cadastro/card_cadastro.dart';
 import '../components/card_erro.dart';
+import '../backend/auth/auth_service.dart';
 import '../services/validacao.dart';
 import 'confirmar_email.dart';
 
@@ -16,6 +18,7 @@ class Cadastro extends StatefulWidget {
 }
 
 class _CadastroState extends State<Cadastro> {
+  final _authService = AuthService();
   final nomeController = TextEditingController();
   final cpfController = TextEditingController();
   final emailController = TextEditingController();
@@ -27,7 +30,17 @@ class _CadastroState extends State<Cadastro> {
     filter: {"#": RegExp(r'[0-9]')},
   );
 
-  void cadastrar() {
+  @override
+  void dispose() {
+    nomeController.dispose();
+    cpfController.dispose();
+    emailController.dispose();
+    senhaController.dispose();
+    confirmarSenhaController.dispose();
+    super.dispose();
+  }
+
+  Future<void> cadastrar() async {
     if (nomeController.text.isEmpty ||
         cpfController.text.isEmpty ||
         emailController.text.isEmpty ||
@@ -55,10 +68,31 @@ class _CadastroState extends State<Cadastro> {
       return;
     }
 
+    debugPrint(
+      '[Cadastro] Enviando codigo de confirmacao para ${emailController.text}.',
+    );
+
+    final resultado = await _authService.enviarConfirmacaoEmail(
+      emailController.text,
+    );
+
+    if (!mounted) return;
+
+    if (!resultado.sucesso) {
+      debugPrint('[Cadastro] Falha ao enviar codigo: ${resultado.mensagem}');
+      mostrarErro(resultado.mensagem ?? 'Nao foi possivel enviar o codigo.');
+      return;
+    }
+
+    debugPrint('[Cadastro] Codigo enviado. Abrindo tela de confirmacao.');
+
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ConfirmarEmail(email: emailController.text),
+        builder: (_) => ConfirmarEmail(
+          email: emailController.text,
+          codigoConfirmacao: resultado.codigoConfirmacao ?? '',
+        ),
       ),
     );
   }
