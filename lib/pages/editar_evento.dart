@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/evento.dart';
 import '../services/firestore_service.dart';
-import '../services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
 class EditarEvento extends StatefulWidget {
@@ -20,7 +20,6 @@ class _EditarEventoState extends State<EditarEvento> {
   late DateTime _dataSelecionada;
   late EventoStatus _statusSelecionado;
   final FirestoreService _firestoreService = FirestoreService();
-  final AuthService _authService = AuthService();
   bool _carregando = false;
 
   @override
@@ -49,8 +48,8 @@ class _EditarEventoState extends State<EditarEvento> {
       return;
     }
 
-    final currentUserId = _authService.currentUserId;
-    if (currentUserId == null) {
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid ?? 'user-teste-123';
+    if (currentUserId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Usuário não autenticado.')),
       );

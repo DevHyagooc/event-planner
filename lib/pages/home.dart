@@ -5,7 +5,7 @@ import '../components/custom_bottom_navigation.dart';
 import '../components/card_evento.dart';
 import '../models/evento.dart';
 import '../services/firestore_service.dart';
-import '../services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'editar_evento.dart';
 import 'agenda.dart';
 import 'tarefas/tarefas_page.dart';
@@ -22,9 +22,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
   final FirestoreService _firestoreService = FirestoreService();
-  final AuthService _authService = AuthService();
 
-  String get _currentUserId => _authService.currentUserId ?? '';
+  String get _currentUserId => FirebaseAuth.instance.currentUser?.uid ?? 'user-teste-123';
 
   void _irParaEditar({Evento? evento}) {
     Navigator.push(
@@ -34,7 +33,7 @@ class _HomeState extends State<Home> {
   }
 
   void _logout() async {
-    await _authService.logout();
+    await FirebaseAuth.instance.signOut();
     if (mounted) {
       Navigator.pushAndRemoveUntil(
         context,
@@ -81,7 +80,7 @@ class _HomeState extends State<Home> {
       case 3:
         return const TarefasPage();
       case 4:
-        return Profile(onLogout: _logout); // Passei o logout para o profile
+        return const Profile(); // Passei o logout para o profile
       default:
         return const SizedBox.shrink();
     }
