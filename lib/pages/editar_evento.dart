@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/evento.dart';
+import '../services/firestore_service.dart';
+import '../services/auth_service.dart';
 import 'package:intl/intl.dart';
 
 class EditarEvento extends StatefulWidget {
@@ -17,6 +19,9 @@ class _EditarEventoState extends State<EditarEvento> {
   late TextEditingController _descricaoController;
   late DateTime _dataSelecionada;
   late EventoStatus _statusSelecionado;
+  final FirestoreService _firestoreService = FirestoreService();
+  final AuthService _authService = AuthService();
+  bool _carregando = false;
 
   @override
   void initState() {
@@ -34,6 +39,52 @@ class _EditarEventoState extends State<EditarEvento> {
     _localController.dispose();
     _descricaoController.dispose();
     super.dispose();
+  }
+
+  Future<void> _salvarEvento() async {
+    if (_nomeController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, informe o nome do evento')),
+      );
+      return;
+    }
+
+    final currentUserId = _authService.currentUserId;
+    if (currentUserId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Usuário não autenticado.')),
+      );
+      return;
+    }
+
+    setState(() => _carregando = true);
+
+    try {
+      final evento = Evento(
+        id: widget.evento?.id ?? '',
+        userId: widget.evento?.userId ?? currentUserId,
+        titulo: _nomeController.text.trim(),
+        descricao: _descricaoController.text.trim(),
+        local: _localController.text.trim(),
+        data: _dataSelecionada,
+        status: _statusSelecionado,
+        totalTarefas: widget.evento?.totalTarefas ?? 0,
+        tarefasConcluidas: widget.evento?.tarefasConcluidas ?? 0,
+        createdAt: widget.evento?.createdAt ?? DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      await _firestoreService.saveEvento(evento);
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao salvar evento: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _carregando = false);
+    }
   }
 
   Future<void> _selecionarData() async {
@@ -125,7 +176,7 @@ class _EditarEventoState extends State<EditarEvento> {
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: _carregando ? null : _salvarEvento,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: coral,
                   foregroundColor: Colors.white,
@@ -134,14 +185,16 @@ class _EditarEventoState extends State<EditarEvento> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(
-                  widget.evento == null ? 'Criar Evento' : 'Salvar Alterações',
-                  style: const TextStyle(
-                    fontFamily: 'SpaceGrotesk',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                child: _carregando 
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : Text(
+                      widget.evento == null ? 'Criar Evento' : 'Salvar Alterações',
+                      style: const TextStyle(
+                        fontFamily: 'SpaceGrotesk',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
               ),
             ),
           ],

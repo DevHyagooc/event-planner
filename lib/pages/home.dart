@@ -4,10 +4,13 @@ import '../components/empty_state_home.dart';
 import '../components/custom_bottom_navigation.dart';
 import '../components/card_evento.dart';
 import '../models/evento.dart';
+import '../services/firestore_service.dart';
+import '../services/auth_service.dart';
 import 'editar_evento.dart';
 import 'agenda.dart';
 import 'tarefas/tarefas_page.dart';
 import 'profile.dart';
+import 'login.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -18,55 +21,27 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
+  final FirestoreService _firestoreService = FirestoreService();
+  final AuthService _authService = AuthService();
 
-  final List<Evento> _eventosMock = [
-    Evento(
-      id: '1',
-      titulo: 'Aniversário de João',
-      descricao: 'Celebração de 10 anos',
-      data: DateTime(2026, 3, 28),
-      local: 'Salão de festas',
-      status: EventoStatus.planejando,
-      totalTarefas: 3,
-      tarefasConcluidas: 1,
-    ),
-    Evento(
-      id: '2',
-      titulo: 'Arraia do Povo',
-      descricao: 'Festa junina tradicional',
-      data: DateTime(2026, 6, 1),
-      local: 'Arena de Eventos',
-      status: EventoStatus.cancelado,
-      totalTarefas: 3,
-      tarefasConcluidas: 0,
-    ),
-    Evento(
-      id: '3',
-      titulo: 'Pre-Caju',
-      descricao: 'Maior pré-carnaval do Brasil',
-      data: DateTime(2026, 10, 12),
-      local: 'Orla de Atalaia',
-      status: EventoStatus.concluido,
-      totalTarefas: 3,
-      tarefasConcluidas: 3,
-    ),
-    Evento(
-      id: '4',
-      titulo: 'Aniversário de Carla',
-      descricao: 'Festa surpresa',
-      data: DateTime(2025, 3, 31),
-      local: 'Salão de festas',
-      status: EventoStatus.planejando,
-      totalTarefas: 3,
-      tarefasConcluidas: 1,
-    ),
-  ];
+  String get _currentUserId => _authService.currentUserId ?? '';
 
   void _irParaEditar({Evento? evento}) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => EditarEvento(evento: evento)),
     );
+  }
+
+  void _logout() async {
+    await _authService.logout();
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const Login()),
+        (route) => false,
+      );
+    }
   }
 
   @override
@@ -106,46 +81,65 @@ class _HomeState extends State<Home> {
       case 3:
         return const TarefasPage();
       case 4:
-        return const Profile();
+        return Profile(onLogout: _logout); // Passei o logout para o profile
       default:
         return const SizedBox.shrink();
     }
   }
 
   Widget _buildHomeContent() {
-    if (_eventosMock.isEmpty) {
-      return EmptyStateHome(onCreateEvent: () => _irParaEditar());
+    if (_currentUserId.isEmpty) {
+      return const Center(child: Text('Usuário não autenticado.'));
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(18, 24, 18, 12),
-          child: Text(
-            '${_eventosMock.length} eventos',
-            style: const TextStyle(
-              fontFamily: 'SpaceGrotesk',
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              color: Color(0xFF111111),
+    return StreamBuilder<List<Evento>>(
+      stream: _firestoreService.getEventos(_currentUserId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator(color: Color(0xFFE76E50)));
+        }
+
+        if (snapshot.hasError) {
+          return Center(child: Text('Erro ao carregar eventos: ${snapshot.error}'));
+        }
+
+        final eventos = snapshot.data ?? [];
+
+        if (eventos.isEmpty) {
+          return EmptyStateHome(onCreateEvent: () => _irParaEditar());
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 24, 18, 12),
+              child: Text(
+                '${eventos.length} eventos',
+                style: const TextStyle(
+                  fontFamily: 'SpaceGrotesk',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xFF111111),
+                ),
+              ),
             ),
-          ),
-        ),
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.fromLTRB(18, 0, 18, 40),
-            itemCount: _eventosMock.length,
-            itemBuilder: (context, index) {
-              final evento = _eventosMock[index];
-              return CardEvento(
-                evento: evento,
-                onEdit: () => _irParaEditar(evento: evento),
-              );
-            },
-          ),
-        ),
-      ],
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.fromLTRB(18, 0, 18, 40),
+                itemCount: eventos.length,
+                itemBuilder: (context, index) {
+                  final evento = eventos[index];
+                  return CardEvento(
+                    evento: evento,
+                    onEdit: () => _irParaEditar(evento: evento),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
