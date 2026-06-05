@@ -11,10 +11,10 @@ class FirestoreService {
   CollectionReference get _usuariosRef => _db.collection(FirebaseConstants.usuariosCollection);
 
   Future<void> saveUser(AppUser user) {
-    return _usuariosRef.doc(user.id.isEmpty ? null : user.id).set(
-          user.toFirestore(),
-          SetOptions(merge: true),
-        );
+  return _usuariosRef.doc(user.id).set(
+        user.toFirestore(),
+        SetOptions(merge: true),
+      );
   }
 
   Future<AppUser?> getUser(String id) async {
@@ -23,6 +23,24 @@ class FirestoreService {
       return AppUser.fromFirestore(doc);
     }
     return null;
+  }
+
+    Future<bool> cpfExiste(String cpf) async {
+    final result = await _usuariosRef
+        .where('cpf', isEqualTo: cpf)
+        .limit(1)
+        .get();
+
+    return result.docs.isNotEmpty;
+  }
+
+  Future<bool> emailExiste(String email) async {
+    final result = await _usuariosRef
+        .where('email', isEqualTo: email)
+        .limit(1)
+        .get();
+
+    return result.docs.isNotEmpty;
   }
 
   // --- Eventos ---
