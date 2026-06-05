@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class EmailService {
   static Future<String> enviarCodigo({
@@ -17,10 +18,10 @@ class EmailService {
         'Content-Type': 'application/json',
       },
       body: jsonEncode({
-        'service_id': 'service_uyo4j2e',
-        'template_id': 'template_qpwv7zj',
-        'user_id': 't_zQOL2Oxn7bOPnRf',
-        'accessToken': 'KPcn9gHeraEvWJrADz8sU',
+        'service_id': dotenv.env['EMAILJS_SERVICE_ID'],
+        'template_id': dotenv.env['EMAILJS_TEMPLATE_ID'],
+        'user_id': dotenv.env['EMAILJS_PUBLIC_KEY'],
+        'accessToken': dotenv.env['EMAILJS_PRIVATE_KEY'],
         'template_params': {
           'email': email,
           'to_name': nome,

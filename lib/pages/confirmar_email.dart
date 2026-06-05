@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../components/botao.dart';
 import '../components/cadastro/card_cadastro.dart';
 import '../components/cadastro/campo_codigo.dart';
 import '../components/card_erro.dart';
 import 'home.dart';
+import '../models/app_user.dart';
+import '../services/firestore_service.dart';
 
 class ConfirmarEmail extends StatefulWidget {
   final String nome;
@@ -45,25 +46,29 @@ class _ConfirmarEmailState extends State<ConfirmarEmail> {
     }
 
     try {
-      final userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: widget.email,
-        password: widget.senha,
-      );
+      final userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: widget.email,
+            password: widget.senha,
+          );
 
       final uid = userCredential.user!.uid;
 
-      await FirebaseFirestore.instance
-          .collection('cadastro_usuarios')
-          .doc(uid)
-          .set({
-        'uid': uid,
-        'nome': widget.nome,
-        'cpf': widget.cpf,
-        'email': widget.email,
-        'emailConfirmado': true,
-        'criadoEm': FieldValue.serverTimestamp(),
-      });
+      final firestoreService = FirestoreService();
+
+      final usuario = AppUser(
+        id: uid,
+        firebaseAuthUid: uid,
+        name: widget.nome,
+        cpf: widget.cpf,
+        email: widget.email,
+        emailVerified: true,
+        avatarUrl: null,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      await firestoreService.saveUser(usuario);
 
       if (!mounted) return;
 

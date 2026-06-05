@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../services/firestore_service.dart';
 
 import '../components/botao.dart';
 import '../components/cadastro/campo_texto_cadastro.dart';
@@ -63,23 +63,18 @@ class _CadastroState extends State<Cadastro> {
           .replaceAll('-', '');
       final email = emailController.text.trim().toLowerCase();
 
-      final cpfExistente = await FirebaseFirestore.instance
-          .collection('cadastro_usuarios')
-          .where('cpf', isEqualTo: cpfLimpo)
-          .get();
+      final firestoreService = FirestoreService();
 
-      if (cpfExistente.docs.isNotEmpty) {
+      final cpfJaExiste = await firestoreService.cpfExiste(cpfLimpo);
+
+      if (cpfJaExiste) {
         mostrarErro('Já existe um usuário cadastrado com este CPF.');
         return;
       }
 
-      final emailExistente = await FirebaseFirestore.instance
-          .collection('cadastro_usuarios')
-          .where('email', isEqualTo: email)
-          .limit(1)
-          .get();
+      final emailJaExiste = await firestoreService.emailExiste(email);
 
-      if (emailExistente.docs.isNotEmpty) {
+      if (emailJaExiste) {
         mostrarErro('Já existe um usuário cadastrado com este e-mail.');
         return;
       }
