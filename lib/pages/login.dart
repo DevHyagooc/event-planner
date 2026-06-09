@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../components/botao.dart';
 import '../components/cadastro/campo_texto_cadastro.dart';
@@ -19,6 +20,7 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final emailController = TextEditingController();
   final senhaController = TextEditingController();
+  bool carregando = false;
 
   @override
   void dispose() {
@@ -27,7 +29,11 @@ class _LoginState extends State<Login> {
     super.dispose();
   }
 
-  void entrar() {
+  Future<void> entrar() async {
+    if (carregando) {
+      return;
+    }
+
     if (emailController.text.isEmpty || senhaController.text.isEmpty) {
       mostrarErro('Preencha e-mail e senha para entrar.');
       return;
@@ -38,14 +44,55 @@ class _LoginState extends State<Login> {
       return;
     }
 
-    if (emailController.text == 'admin@email.com' &&
-        senhaController.text == '123456') {
+    setState(() {
+      carregando = true;
+    });
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text.trim().toLowerCase(),
+        password: senhaController.text.trim(),
+      );
+
+      if (!mounted) return;
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const Home()),
       );
-    } else {
-      mostrarErro('E-mail ou senha incorretos.');
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      mostrarErro(_mensagemErroFirebase(e));
+    } catch (_) {
+      if (!mounted) return;
+
+      mostrarErro('Nao foi possivel entrar. Tente novamente.');
+    } finally {
+      if (mounted) {
+        setState(() {
+          carregando = false;
+        });
+      }
+    }
+  }
+
+  String _mensagemErroFirebase(FirebaseAuthException erro) {
+    switch (erro.code) {
+      case 'user-not-found':
+      case 'invalid-credential':
+      case 'wrong-password':
+        return 'E-mail ou senha incorretos.';
+      case 'invalid-email':
+        return 'Digite um e-mail valido.';
+      case 'user-disabled':
+        return 'Esta conta foi desativada.';
+      case 'too-many-requests':
+        return 'Muitas tentativas. Tente novamente mais tarde.';
+      case 'network-request-failed':
+        return 'Sem conexao com a internet. Verifique sua rede.';
+      default:
+        return 'Nao foi possivel entrar. Tente novamente.';
     }
   }
 
@@ -148,9 +195,11 @@ class _LoginState extends State<Login> {
                     ),
                     const SizedBox(height: 18),
                     BotaoLogin(
-                      texto: 'Entrar',
+                      texto: carregando ? 'Entrando...' : 'Entrar',
                       onPressed: entrar,
-                      backgroundColor: const Color(0xFFE76E50),
+                      backgroundColor: carregando
+                          ? const Color(0xFFE7A18F)
+                          : const Color(0xFFE76E50),
                     ),
                     const SizedBox(height: 14),
                     Center(
