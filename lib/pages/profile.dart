@@ -3,6 +3,7 @@ import 'pagina_inicial.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
 import '../models/app_user.dart';
+import '../models/estatisticas_perfil.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
@@ -48,7 +49,14 @@ class Profile extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 24),
-                _buildGridEstatisticas(),
+                StreamBuilder<EstatisticasPerfil>(
+                  stream: _streamEstatisticas(),
+                  builder: (context, snapshot) {
+                    return _buildGridEstatisticas(
+                      snapshot.data ?? const EstatisticasPerfil(),
+                    );
+                  },
+                ),
                 const SizedBox(height: 24),
                 _buildSecao(
                   titulo: 'Geral',
@@ -120,9 +128,6 @@ class Profile extends StatelessWidget {
     final nome = usuario?.name.isNotEmpty == true
         ? usuario!.name
         : 'Organizador';
-    final email = usuario?.email.isNotEmpty == true
-        ? usuario!.email
-        : 'Gerencie seus eventos';
     final avatarUrl = usuario?.avatarUrl;
 
     return Padding(
@@ -161,9 +166,9 @@ class Profile extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            email,
-            style: const TextStyle(
+          const Text(
+            'Gerencie seus eventos',
+            style: TextStyle(
               fontFamily: 'SpaceGrotesk',
               color: _muted,
               fontSize: 14,
@@ -175,7 +180,15 @@ class Profile extends StatelessWidget {
     );
   }
 
-  Widget _buildGridEstatisticas() {
+  Stream<EstatisticasPerfil> _streamEstatisticas() {
+    final uid = AuthService().usuarioAtual?.uid;
+    if (uid == null) {
+      return Stream.value(const EstatisticasPerfil());
+    }
+    return FirestoreService().streamEstatisticas(uid);
+  }
+
+  Widget _buildGridEstatisticas(EstatisticasPerfil stats) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -183,25 +196,25 @@ class Profile extends StatelessWidget {
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
       childAspectRatio: 1.5,
-      children: const [
+      children: [
         _CardEstatistica(
           icone: Icons.calendar_today_outlined,
-          valor: '0',
+          valor: '${stats.totalEventos}',
           rotulo: 'Eventos',
         ),
         _CardEstatistica(
           icone: Icons.checklist_outlined,
-          valor: '0',
+          valor: '${stats.eventosConcluidos}',
           rotulo: 'Concluídos',
         ),
         _CardEstatistica(
           icone: Icons.check_box_outlined,
-          valor: '0',
+          valor: '${stats.totalTarefas}',
           rotulo: 'Tarefas',
         ),
         _CardEstatistica(
           icone: Icons.task_alt_outlined,
-          valor: '0',
+          valor: '${stats.tarefasFinalizadas}',
           rotulo: 'Finalizadas',
         ),
       ],
