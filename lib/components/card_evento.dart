@@ -4,13 +4,9 @@ import 'package:intl/intl.dart';
 
 class CardEvento extends StatelessWidget {
   final Evento evento;
-  final VoidCallback onEdit;
+  final VoidCallback onTap;
 
-  const CardEvento({
-    super.key,
-    required this.evento,
-    required this.onEdit,
-  });
+  const CardEvento({super.key, required this.evento, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +15,13 @@ class CardEvento extends StatelessWidget {
     const textLight = Color(0xFFBCBCBC);
     const bgGray = Color(0xFFE8E2DE);
 
-    final dataFormatada = DateFormat('dd MMM yyyy', 'pt_BR').format(evento.data);
+    final dataFormatada = DateFormat(
+      'dd MMM yyyy',
+      'pt_BR',
+    ).format(evento.data);
 
     return GestureDetector(
-      onTap: onEdit,
+      onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(20),
@@ -31,7 +30,7 @@ class CardEvento extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
