@@ -79,8 +79,28 @@ class FirestoreService {
     return snapshot.docs.map((doc) => Evento.fromFirestore(doc)).toList();
   }
 
-  Future<void> deleteEvento(String id) {
-    return _eventosRef.doc(id).delete();
+  Stream<Evento?> watchEvento(String id) {
+    return _eventosRef.doc(id).snapshots().map((doc) {
+      if (!doc.exists) {
+        return null;
+      }
+
+      return Evento.fromFirestore(doc);
+    });
+  }
+
+  Future<void> deleteEvento(String id) async {
+    final tasksSnapshot = await _tarefasRef
+        .where('eventId', isEqualTo: id)
+        .get();
+    final batch = _db.batch();
+
+    for (final taskDoc in tasksSnapshot.docs) {
+      batch.delete(taskDoc.reference);
+    }
+
+    batch.delete(_eventosRef.doc(id));
+    await batch.commit();
   }
 
   Stream<EstatisticasPerfil> streamEstatisticas(String userId) {

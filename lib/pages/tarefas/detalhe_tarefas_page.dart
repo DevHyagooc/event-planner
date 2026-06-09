@@ -98,268 +98,320 @@ class _DetalheTarefasPageState extends State<DetalheTarefasPage> {
     }
   }
 
+  Future<void> _deleteEvent() async {
+    final shouldDelete = await showEventDeleteConfirmation(context);
+    if (!shouldDelete) {
+      return;
+    }
+
+    try {
+      await _firestoreService.deleteEvento(widget.event.id);
+
+      if (!mounted) {
+        return;
+      }
+
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao excluir evento: $e')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: TaskPalette.background,
       body: SafeArea(
-        child: StreamBuilder<List<EventTask>>(
-          stream: _firestoreService.getTasks(widget.event.id),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(color: TaskPalette.primary),
-              );
-            }
-
-            if (snapshot.hasError) {
+        child: StreamBuilder<Evento?>(
+          stream: _firestoreService.watchEvento(widget.event.id),
+          builder: (context, eventSnapshot) {
+            if (eventSnapshot.hasError) {
               return Center(
-                child: Text('Erro ao carregar tarefas: ${snapshot.error}'),
+                child: Text('Erro ao carregar evento: ${eventSnapshot.error}'),
               );
             }
 
-            final tasks = snapshot.data ?? [];
-            final visibleTasks = _visibleTasks(tasks);
-            final completedCount = tasks
-                .where((task) => task.isCompleted)
-                .length;
-            final pendingCount = tasks.length - completedCount;
-            final progress = tasks.isEmpty
-                ? 0.0
-                : completedCount / tasks.length;
+            final event = eventSnapshot.data ?? widget.event;
 
-            return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 14),
-                  Row(
+            return StreamBuilder<List<EventTask>>(
+              stream: _firestoreService.getTasks(event.id),
+              builder: (context, taskSnapshot) {
+                if (taskSnapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: TaskPalette.primary,
+                    ),
+                  );
+                }
+
+                if (taskSnapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      'Erro ao carregar tarefas: ${taskSnapshot.error}',
+                    ),
+                  );
+                }
+
+                final tasks = taskSnapshot.data ?? [];
+                final visibleTasks = _visibleTasks(tasks);
+                final completedCount = tasks
+                    .where((task) => task.isCompleted)
+                    .length;
+                final pendingCount = tasks.length - completedCount;
+                final progress = tasks.isEmpty
+                    ? 0.0
+                    : completedCount / tasks.length;
+
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(
-                          Icons.arrow_back,
-                          color: TaskPalette.text,
-                        ),
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(
+                              Icons.arrow_back,
+                              color: TaskPalette.text,
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              event.titulo,
+                              style: const TextStyle(
+                                fontFamily: 'SpaceGrotesk',
+                                fontSize: 22,
+                                fontWeight: FontWeight.w700,
+                                color: TaskPalette.text,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => EditarEvento(evento: event),
+                                ),
+                              );
+                            },
+                            icon: const Icon(
+                              Icons.edit_outlined,
+                              color: TaskPalette.text,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: _deleteEvent,
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              color: Colors.redAccent,
+                            ),
+                          ),
+                        ],
                       ),
-                      Expanded(
+                      const SizedBox(height: 10),
+                      const Divider(color: TaskPalette.border),
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.calendar_today_outlined,
+                            size: 14,
+                            color: TaskPalette.muted,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            TaskDateFormatter.eventDate(event.data),
+                            style: const TextStyle(
+                              fontFamily: 'SpaceGrotesk',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              color: TaskPalette.muted,
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          const Icon(
+                            Icons.location_on_outlined,
+                            size: 14,
+                            color: TaskPalette.muted,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              event.local,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontFamily: 'SpaceGrotesk',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                color: TaskPalette.muted,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: TaskPalette.primaryLight,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
                         child: Text(
-                          widget.event.titulo,
+                          TaskStatusFormatter.eventStatus(event.status),
                           style: const TextStyle(
                             fontFamily: 'SpaceGrotesk',
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                            color: TaskPalette.text,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: TaskPalette.primary,
                           ),
                         ),
                       ),
-                      IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  EditarEvento(evento: widget.event),
-                            ),
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.edit_outlined,
-                          color: TaskPalette.text,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  const Divider(color: TaskPalette.border),
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.calendar_today_outlined,
-                        size: 14,
-                        color: TaskPalette.muted,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        TaskDateFormatter.eventDate(widget.event.data),
-                        style: const TextStyle(
+                      const SizedBox(height: 18),
+                      const Text(
+                        'Descrição',
+                        style: TextStyle(
                           fontFamily: 'SpaceGrotesk',
-                          fontSize: 12,
+                          fontSize: 14,
                           fontWeight: FontWeight.w400,
                           color: TaskPalette.muted,
                         ),
                       ),
-                      const SizedBox(width: 20),
-                      const Icon(
-                        Icons.location_on_outlined,
-                        size: 14,
-                        color: TaskPalette.muted,
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          widget.event.local,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontFamily: 'SpaceGrotesk',
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                            color: TaskPalette.muted,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: TaskPalette.primaryLight,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      TaskStatusFormatter.eventStatus(widget.event.status),
-                      style: const TextStyle(
-                        fontFamily: 'SpaceGrotesk',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: TaskPalette.primary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  const Text(
-                    'Descrição',
-                    style: TextStyle(
-                      fontFamily: 'SpaceGrotesk',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: TaskPalette.muted,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    widget.event.descricao.isEmpty
-                        ? 'Sem descrição.'
-                        : widget.event.descricao,
-                    style: const TextStyle(
-                      fontFamily: 'SpaceGrotesk',
-                      fontSize: 15,
-                      fontWeight: FontWeight.w400,
-                      color: TaskPalette.text,
-                      height: 1.35,
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  TaskSummaryCard(
-                    completedCount: completedCount,
-                    pendingCount: pendingCount,
-                    progress: progress,
-                  ),
-                  const SizedBox(height: 18),
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final isCompact = constraints.maxWidth < 330;
-                      final addButton = TaskPrimaryButton(
-                        label: 'Adicionar',
-                        icon: Icons.add,
-                        fullWidth: false,
-                        onPressed: () => _openForm(),
-                      );
-
-                      const title = Text(
-                        'Tarefas',
-                        style: TextStyle(
+                      const SizedBox(height: 6),
+                      Text(
+                        event.descricao.isEmpty
+                            ? 'Sem descrição.'
+                            : event.descricao,
+                        style: const TextStyle(
                           fontFamily: 'SpaceGrotesk',
-                          fontSize: 34,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w400,
                           color: TaskPalette.text,
+                          height: 1.35,
                         ),
-                      );
+                      ),
+                      const SizedBox(height: 18),
+                      TaskSummaryCard(
+                        completedCount: completedCount,
+                        pendingCount: pendingCount,
+                        progress: progress,
+                      ),
+                      const SizedBox(height: 18),
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final isCompact = constraints.maxWidth < 330;
+                          final addButton = TaskPrimaryButton(
+                            label: 'Adicionar',
+                            icon: Icons.add,
+                            fullWidth: false,
+                            onPressed: () => _openForm(),
+                          );
 
-                      if (isCompact) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            title,
-                            const SizedBox(height: 12),
-                            SizedBox(width: double.infinity, child: addButton),
-                          ],
-                        );
-                      }
-
-                      return Row(
-                        children: [
-                          const Expanded(child: title),
-                          const SizedBox(width: 16),
-                          ConstrainedBox(
-                            constraints: const BoxConstraints(
-                              minWidth: 120,
-                              maxWidth: 132,
+                          const title = Text(
+                            'Tarefas',
+                            style: TextStyle(
+                              fontFamily: 'SpaceGrotesk',
+                              fontSize: 34,
+                              fontWeight: FontWeight.w700,
+                              color: TaskPalette.text,
                             ),
-                            child: addButton,
+                          );
+
+                          if (isCompact) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                title,
+                                const SizedBox(height: 12),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: addButton,
+                                ),
+                              ],
+                            );
+                          }
+
+                          return Row(
+                            children: [
+                              const Expanded(child: title),
+                              const SizedBox(width: 16),
+                              ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  minWidth: 120,
+                                  maxWidth: 132,
+                                ),
+                                child: addButton,
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          TaskFilterChip(
+                            label: 'Todas',
+                            isSelected: _selectedFilter == TaskFilter.all,
+                            onTap: () => setState(
+                              () => _selectedFilter = TaskFilter.all,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          TaskFilterChip(
+                            label: 'Pendentes',
+                            isSelected: _selectedFilter == TaskFilter.pending,
+                            onTap: () => setState(
+                              () => _selectedFilter = TaskFilter.pending,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          TaskFilterChip(
+                            label: 'Concluídas',
+                            isSelected: _selectedFilter == TaskFilter.completed,
+                            onTap: () => setState(
+                              () => _selectedFilter = TaskFilter.completed,
+                            ),
                           ),
                         ],
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      TaskFilterChip(
-                        label: 'Todas',
-                        isSelected: _selectedFilter == TaskFilter.all,
-                        onTap: () =>
-                            setState(() => _selectedFilter = TaskFilter.all),
                       ),
-                      const SizedBox(width: 10),
-                      TaskFilterChip(
-                        label: 'Pendentes',
-                        isSelected: _selectedFilter == TaskFilter.pending,
-                        onTap: () => setState(
-                          () => _selectedFilter = TaskFilter.pending,
+                      const SizedBox(height: 18),
+                      if (visibleTasks.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 40),
+                          child: SizedBox(
+                            height: 180,
+                            child: Center(child: TaskEmptyStateContent()),
+                          ),
+                        )
+                      else
+                        ...visibleTasks.map(
+                          (task) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: EventTaskCard(
+                              task: task,
+                              onToggle: () => _toggleTask(task),
+                              onEdit: () => _openForm(task: task),
+                              onDelete: () => _deleteTask(task),
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      TaskFilterChip(
-                        label: 'Concluídas',
-                        isSelected: _selectedFilter == TaskFilter.completed,
-                        onTap: () => setState(
-                          () => _selectedFilter = TaskFilter.completed,
-                        ),
-                      ),
+                      const SizedBox(height: 24),
                     ],
                   ),
-                  const SizedBox(height: 18),
-                  if (visibleTasks.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 40),
-                      child: SizedBox(
-                        height: 180,
-                        child: Center(child: TaskEmptyStateContent()),
-                      ),
-                    )
-                  else
-                    ...visibleTasks.map(
-                      (task) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: EventTaskCard(
-                          task: task,
-                          onToggle: () => _toggleTask(task),
-                          onEdit: () => _openForm(task: task),
-                          onDelete: () => _deleteTask(task),
-                        ),
-                      ),
-                    ),
-                  const SizedBox(height: 24),
-                ],
-              ),
+                );
+              },
             );
           },
         ),

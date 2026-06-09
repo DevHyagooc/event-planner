@@ -57,7 +57,27 @@ class TaskStatusFormatter {
   }
 }
 
-Future<bool> showTaskDeleteConfirmation(BuildContext context) async {
+Future<bool> showTaskDeleteConfirmation(BuildContext context) {
+  return showDeleteConfirmation(
+    context,
+    title: 'Excluir tarefa?',
+    message: 'Isso removerá a tarefa permanentemente.',
+  );
+}
+
+Future<bool> showEventDeleteConfirmation(BuildContext context) {
+  return showDeleteConfirmation(
+    context,
+    title: 'Excluir evento?',
+    message: 'Isso removerá o evento e suas tarefas permanentemente.',
+  );
+}
+
+Future<bool> showDeleteConfirmation(
+  BuildContext context, {
+  required String title,
+  required String message,
+}) async {
   final result = await showDialog<bool>(
     context: context,
     barrierColor: Colors.black.withValues(alpha: 0.12),
@@ -78,9 +98,9 @@ Future<bool> showTaskDeleteConfirmation(BuildContext context) async {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Excluir tarefa?',
-                style: TextStyle(
+              Text(
+                title,
+                style: const TextStyle(
                   fontFamily: 'SpaceGrotesk',
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -88,9 +108,9 @@ Future<bool> showTaskDeleteConfirmation(BuildContext context) async {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Isso removerá a tarefa permanentemente.',
-                style: TextStyle(
+              Text(
+                message,
+                style: const TextStyle(
                   fontFamily: 'SpaceGrotesk',
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
