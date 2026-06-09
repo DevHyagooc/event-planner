@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'pagina_inicial.dart';
 import '../services/auth_service.dart';
+import '../services/firestore_service.dart';
+import '../models/app_user.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
@@ -39,7 +41,12 @@ class Profile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                _buildHeaderUsuario(),
+                StreamBuilder<AppUser?>(
+                  stream: _streamUsuarioAtual(),
+                  builder: (context, snapshot) {
+                    return _buildHeaderUsuario(snapshot.data);
+                  },
+                ),
                 const SizedBox(height: 24),
                 _buildGridEstatisticas(),
                 const SizedBox(height: 24),
@@ -101,7 +108,23 @@ class Profile extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderUsuario() {
+  Stream<AppUser?> _streamUsuarioAtual() {
+    final uid = AuthService().usuarioAtual?.uid;
+    if (uid == null) {
+      return Stream.value(null);
+    }
+    return FirestoreService().streamUser(uid);
+  }
+
+  Widget _buildHeaderUsuario(AppUser? usuario) {
+    final nome = usuario?.name.isNotEmpty == true
+        ? usuario!.name
+        : 'Organizador';
+    final email = usuario?.email.isNotEmpty == true
+        ? usuario!.email
+        : 'Gerencie seus eventos';
+    final avatarUrl = usuario?.avatarUrl;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: Column(
@@ -109,20 +132,28 @@ class Profile extends StatelessWidget {
           Container(
             width: 80,
             height: 80,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: _primarySoft,
               shape: BoxShape.circle,
+              image: avatarUrl != null && avatarUrl.isNotEmpty
+                  ? DecorationImage(
+                      image: NetworkImage(avatarUrl),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
             ),
-            child: const Icon(
-              Icons.person_outline,
-              color: _primary,
-              size: 40,
-            ),
+            child: avatarUrl != null && avatarUrl.isNotEmpty
+                ? null
+                : const Icon(
+                    Icons.person_outline,
+                    color: _primary,
+                    size: 40,
+                  ),
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Organizador',
-            style: TextStyle(
+          Text(
+            nome,
+            style: const TextStyle(
               fontFamily: 'SpaceGrotesk',
               color: _foreground,
               fontSize: 18,
@@ -130,9 +161,9 @@ class Profile extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Gerencie seus eventos',
-            style: TextStyle(
+          Text(
+            email,
+            style: const TextStyle(
               fontFamily: 'SpaceGrotesk',
               color: _muted,
               fontSize: 14,

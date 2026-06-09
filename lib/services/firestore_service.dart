@@ -25,6 +25,12 @@ class FirestoreService {
     return null;
   }
 
+  Stream<AppUser?> streamUser(String id) {
+    return _usuariosRef.doc(id).snapshots().map(
+          (doc) => doc.exists ? AppUser.fromFirestore(doc) : null,
+        );
+  }
+
     Future<bool> cpfExiste(String cpf) async {
     final result = await _usuariosRef
         .where('cpf', isEqualTo: cpf)
