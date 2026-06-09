@@ -27,7 +27,9 @@ class _EditarEventoState extends State<EditarEvento> {
     super.initState();
     _nomeController = TextEditingController(text: widget.evento?.titulo ?? '');
     _localController = TextEditingController(text: widget.evento?.local ?? '');
-    _descricaoController = TextEditingController(text: widget.evento?.descricao ?? '');
+    _descricaoController = TextEditingController(
+      text: widget.evento?.descricao ?? '',
+    );
     _dataSelecionada = widget.evento?.data ?? DateTime.now();
     _statusSelecionado = widget.evento?.status ?? EventoStatus.planejando;
   }
@@ -48,11 +50,12 @@ class _EditarEventoState extends State<EditarEvento> {
       return;
     }
 
-    final currentUserId = FirebaseAuth.instance.currentUser?.uid ?? 'user-teste-123';
+    final currentUserId =
+        FirebaseAuth.instance.currentUser?.uid ?? 'user-teste-123';
     if (currentUserId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuário não autenticado.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Usuário não autenticado.')));
       return;
     }
 
@@ -77,9 +80,9 @@ class _EditarEventoState extends State<EditarEvento> {
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao salvar evento: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro ao salvar evento: $e')));
       }
     } finally {
       if (mounted) setState(() => _carregando = false);
@@ -144,8 +147,13 @@ class _EditarEventoState extends State<EditarEvento> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildLabel('Nome do evento *'),
-            _buildTextField(_nomeController, 'Aniversário de João', bgInput, borderGray),
-            
+            _buildTextField(
+              _nomeController,
+              'Aniversário de João',
+              bgInput,
+              borderGray,
+            ),
+
             const SizedBox(height: 20),
             _buildLabel('Data *'),
             GestureDetector(
@@ -160,11 +168,22 @@ class _EditarEventoState extends State<EditarEvento> {
 
             const SizedBox(height: 20),
             _buildLabel('Local'),
-            _buildTextField(_localController, 'Salao de festas', bgInput, borderGray),
+            _buildTextField(
+              _localController,
+              'Salão de festas',
+              bgInput,
+              borderGray,
+            ),
 
             const SizedBox(height: 20),
-            _buildLabel('Descricao'),
-            _buildTextField(_descricaoController, 'Descricao', bgInput, borderGray, maxLines: 4),
+            _buildLabel('Descrição'),
+            _buildTextField(
+              _descricaoController,
+              'Descrição',
+              bgInput,
+              borderGray,
+              maxLines: 4,
+            ),
 
             const SizedBox(height: 20),
             _buildLabel('Status'),
@@ -184,16 +203,18 @@ class _EditarEventoState extends State<EditarEvento> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: _carregando 
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : Text(
-                      widget.evento == null ? 'Criar Evento' : 'Salvar Alterações',
-                      style: const TextStyle(
-                        fontFamily: 'SpaceGrotesk',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                child: _carregando
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : Text(
+                        widget.evento == null
+                            ? 'Criar Evento'
+                            : 'Salvar Alterações',
+                        style: const TextStyle(
+                          fontFamily: 'SpaceGrotesk',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
               ),
             ),
           ],
@@ -217,13 +238,22 @@ class _EditarEventoState extends State<EditarEvento> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint, Color bg, Color border, {int maxLines = 1}) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String hint,
+    Color bg,
+    Color border, {
+    int maxLines = 1,
+  }) {
     return TextField(
       controller: controller,
       maxLines: maxLines,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFFBCBCBC), fontFamily: 'SpaceGrotesk'),
+        hintStyle: const TextStyle(
+          color: Color(0xFFBCBCBC),
+          fontFamily: 'SpaceGrotesk',
+        ),
         filled: true,
         fillColor: bg,
         contentPadding: const EdgeInsets.all(16),
@@ -277,12 +307,26 @@ class _EditarEventoState extends State<EditarEvento> {
           value: _statusSelecionado,
           isExpanded: true,
           items: EventoStatus.values.map((status) {
-            String label = status.name[0].toUpperCase() + status.name.substring(1);
+            String label;
+            switch (status) {
+              case EventoStatus.planejando:
+                label = 'Planejando';
+                break;
+              case EventoStatus.concluido:
+                label = 'Concluído';
+                break;
+              case EventoStatus.cancelado:
+                label = 'Cancelado';
+                break;
+            }
             return DropdownMenuItem(
               value: status,
               child: Text(
                 label,
-                style: const TextStyle(fontFamily: 'SpaceGrotesk', fontSize: 15),
+                style: const TextStyle(
+                  fontFamily: 'SpaceGrotesk',
+                  fontSize: 15,
+                ),
               ),
             );
           }).toList(),

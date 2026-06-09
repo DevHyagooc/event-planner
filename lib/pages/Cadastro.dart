@@ -186,7 +186,7 @@ class _CadastroState extends State<Cadastro> {
                     CampoTextoCadastro(
                       controller: cpfController,
                       label: 'CPF',
-                      placeholder: 'Digite seu cpf',
+                      placeholder: 'Digite seu CPF',
                       keyboardType: TextInputType.number,
                       inputFormatters: [cpfFormatter],
                     ),
@@ -194,7 +194,7 @@ class _CadastroState extends State<Cadastro> {
                     CampoTextoCadastro(
                       controller: emailController,
                       label: 'E-mail',
-                      placeholder: 'Digite seu email',
+                      placeholder: 'Digite seu e-mail',
                       keyboardType: TextInputType.emailAddress,
                     ),
                     const SizedBox(height: 14),

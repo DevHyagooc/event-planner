@@ -23,7 +23,8 @@ class _HomeState extends State<Home> {
   int _currentIndex = 0;
   final FirestoreService _firestoreService = FirestoreService();
 
-  String get _currentUserId => FirebaseAuth.instance.currentUser?.uid ?? 'user-teste-123';
+  String get _currentUserId =>
+      FirebaseAuth.instance.currentUser?.uid ?? 'user-teste-123';
 
   void _irParaEditar({Evento? evento}) {
     Navigator.push(
@@ -80,7 +81,7 @@ class _HomeState extends State<Home> {
       case 3:
         return const TarefasPage();
       case 4:
-        return const Profile(); // Passei o logout para o profile
+        return const Profile();
       default:
         return const SizedBox.shrink();
     }
@@ -95,11 +96,15 @@ class _HomeState extends State<Home> {
       stream: _firestoreService.getEventos(_currentUserId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator(color: Color(0xFFE76E50)));
+          return const Center(
+            child: CircularProgressIndicator(color: Color(0xFFE76E50)),
+          );
         }
 
         if (snapshot.hasError) {
-          return Center(child: Text('Erro ao carregar eventos: ${snapshot.error}'));
+          return Center(
+            child: Text('Erro ao carregar eventos: ${snapshot.error}'),
+          );
         }
 
         final eventos = snapshot.data ?? [];
