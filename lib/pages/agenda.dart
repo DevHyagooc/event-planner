@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import '../models/evento.dart';
+import '../services/firestore_service.dart';
 
 class Agenda extends StatefulWidget {
   const Agenda({super.key});
@@ -8,31 +12,16 @@ class Agenda extends StatefulWidget {
 }
 
 class _AgendaState extends State<Agenda> {
-  DateTime mesAtual = DateTime(2026, 3);
-  DateTime dataSelecionada = DateTime(2026, 3, 18);
+  DateTime mesAtual = DateTime.now();
+  DateTime dataSelecionada = DateTime.now();
 
-  final List<EventoAgenda> eventos = [
-    EventoAgenda(
-      titulo: 'Aniversário de João',
-      data: DateTime(2026, 3, 18),
-      horario: '21:00',
-      progresso: 33,
-    ),
-    EventoAgenda(
-      titulo: 'Reunião do Evento',
-      data: DateTime(2026, 4, 10),
-      horario: '14:30',
-      progresso: 50,
-    ),
-    EventoAgenda(
-      titulo: 'Entrega de materiais',
-      data: DateTime(2026, 5, 5),
-      horario: '09:00',
-      progresso: 20,
-    ),
-  ];
+  final FirestoreService firestoreService = FirestoreService();
 
-  List<EventoAgenda> get eventosNaData {
+  String get userId {
+    return FirebaseAuth.instance.currentUser?.uid ?? '';
+  }
+
+  List<Evento> filtrarEventosNaData(List<Evento> eventos) {
     return eventos.where((evento) {
       return evento.data.year == dataSelecionada.year &&
           evento.data.month == dataSelecionada.month &&
@@ -40,7 +29,7 @@ class _AgendaState extends State<Agenda> {
     }).toList();
   }
 
-  List<EventoAgenda> get eventosNoMes {
+  List<Evento> filtrarEventosNoMes(List<Evento> eventos) {
     return eventos.where((evento) {
       return evento.data.year == mesAtual.year &&
           evento.data.month == mesAtual.month;
@@ -70,100 +59,155 @@ class _AgendaState extends State<Agenda> {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 390,
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 28),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 24),
-                const Text(
-                  'Agenda',
-                  style: TextStyle(
-                    fontFamily: 'SpaceGrotesk',
-                    color: Colors.black,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _Calendario(
-                  mesAtual: mesAtual,
-                  dataSelecionada: dataSelecionada,
-                  onVoltarMes: voltarMes,
-                  onAvancarMes: avancarMes,
-                  onSelecionarData: selecionarData,
-                ),
-                const SizedBox(height: 22),
-                const Text(
-                  'EVENTOS NA DATA',
-                  style: TextStyle(
-                    fontFamily: 'SpaceGrotesk',
-                    color: Color(0xFF2C2421),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                if (eventosNaData.isEmpty)
-                  const Text(
-                    'Não há eventos para essa data.',
-                    style: TextStyle(
-                      fontFamily: 'SpaceGrotesk',
-                      color: Color(0xFF9A948F),
-                      fontSize: 13,
-                    ),
-                  )
-                else
-                  Column(
-                    children: eventosNaData.map((evento) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: CardEventoAgenda(evento: evento),
-                      );
-                    }).toList(),
-                  ),
-                const SizedBox(height: 18),
-                const Text(
-                  'EVENTOS NO MÊS',
-                  style: TextStyle(
-                    fontFamily: 'SpaceGrotesk',
-                    color: Color(0xFF2C2421),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                if (eventosNoMes.isEmpty)
-                  const Text(
-                    'Não há eventos neste mês.',
-                    style: TextStyle(
-                      fontFamily: 'SpaceGrotesk',
-                      color: Color(0xFF9A948F),
-                      fontSize: 13,
-                    ),
-                  )
-                else
-                  Column(
-                    children: eventosNoMes.map((evento) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: CardEventoAgenda(evento: evento),
-                      );
-                    }).toList(),
-                  ),
-                const SizedBox(height: 90),
-              ],
-            ),
+    if (userId.isEmpty) {
+      return const Center(
+        child: Text(
+          'Usuário não está logado.',
+          style: TextStyle(
+            fontFamily: 'SpaceGrotesk',
+            color: Color(0xFF9A948F),
+            fontSize: 13,
           ),
         ),
-      ),
+      );
+    }
+
+    return StreamBuilder<List<Evento>>(
+      stream: firestoreService.getEventos(userId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFFE76E50),
+            ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return const Center(
+            child: Text(
+              'Erro ao carregar os eventos.',
+              style: TextStyle(
+                fontFamily: 'SpaceGrotesk',
+                color: Colors.red,
+                fontSize: 13,
+              ),
+            ),
+          );
+        }
+
+        final eventos = snapshot.data ?? [];
+        final eventosNaData = filtrarEventosNaData(eventos);
+        final eventosNoMes = filtrarEventosNoMes(eventos);
+
+        return Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 390,
+            ),
+            child: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 28),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 24),
+
+                    const Text(
+                      'Agenda',
+                      style: TextStyle(
+                        fontFamily: 'SpaceGrotesk',
+                        color: Colors.black,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    _Calendario(
+                      mesAtual: mesAtual,
+                      dataSelecionada: dataSelecionada,
+                      onVoltarMes: voltarMes,
+                      onAvancarMes: avancarMes,
+                      onSelecionarData: selecionarData,
+                    ),
+
+                    const SizedBox(height: 22),
+
+                    const Text(
+                      'EVENTOS NA DATA',
+                      style: TextStyle(
+                        fontFamily: 'SpaceGrotesk',
+                        color: Color(0xFF2C2421),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    if (eventosNaData.isEmpty)
+                      const Text(
+                        'Não há eventos para essa data.',
+                        style: TextStyle(
+                          fontFamily: 'SpaceGrotesk',
+                          color: Color(0xFF9A948F),
+                          fontSize: 13,
+                        ),
+                      )
+                    else
+                      Column(
+                        children: eventosNaData.map((evento) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: CardEventoAgenda(evento: evento),
+                          );
+                        }).toList(),
+                      ),
+
+                    const SizedBox(height: 18),
+
+                    const Text(
+                      'EVENTOS NO MÊS',
+                      style: TextStyle(
+                        fontFamily: 'SpaceGrotesk',
+                        color: Color(0xFF2C2421),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    if (eventosNoMes.isEmpty)
+                      const Text(
+                        'Não há eventos neste mês.',
+                        style: TextStyle(
+                          fontFamily: 'SpaceGrotesk',
+                          color: Color(0xFF9A948F),
+                          fontSize: 13,
+                        ),
+                      )
+                    else
+                      Column(
+                        children: eventosNoMes.map((evento) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: CardEventoAgenda(evento: evento),
+                          );
+                        }).toList(),
+                      ),
+
+                    const SizedBox(height: 90),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -367,7 +411,7 @@ class _Calendario extends StatelessWidget {
 }
 
 class CardEventoAgenda extends StatelessWidget {
-  final EventoAgenda evento;
+  final Evento evento;
 
   const CardEventoAgenda({
     super.key,
@@ -396,6 +440,8 @@ class CardEventoAgenda extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dataFormatada = '${evento.data.day} ${nomeMesCurto(evento.data.month)}';
+    final horario = evento.hora ?? '';
+    final progresso = (evento.progresso * 100).toInt();
 
     return Container(
       height: 58,
@@ -444,7 +490,7 @@ class CardEventoAgenda extends StatelessWidget {
                 const SizedBox(height: 3),
 
                 Text(
-                  '$dataFormatada    ${evento.horario}',
+                  '$dataFormatada    $horario',
                   style: const TextStyle(
                     fontFamily: 'SpaceGrotesk',
                     color: Color(0xFF9A948F),
@@ -456,7 +502,7 @@ class CardEventoAgenda extends StatelessWidget {
           ),
 
           Text(
-            '${evento.progresso}%',
+            '$progresso%',
             style: const TextStyle(
               fontFamily: 'SpaceGrotesk',
               color: Color(0xFFE76E50),
@@ -468,59 +514,4 @@ class CardEventoAgenda extends StatelessWidget {
       ),
     );
   }
-}
-class _ItemMenu extends StatelessWidget {
-  final IconData icone;
-  final String texto;
-  final bool selecionado;
-
-  const _ItemMenu({
-    required this.icone,
-    required this.texto,
-    required this.selecionado,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cor = selecionado
-        ? const Color(0xFFE76E50)
-        : const Color(0xFF8C7B73);
-
-    return SizedBox(
-      width: 58,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icone,
-            color: cor,
-            size: 20,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            texto,
-            style: TextStyle(
-              fontFamily: 'SpaceGrotesk',
-              color: cor,
-              fontSize: 10,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-class EventoAgenda {
-  final String titulo;
-  final DateTime data;
-  final String horario;
-  final int progresso;
-
-  EventoAgenda({
-    required this.titulo,
-    required this.data,
-    required this.horario,
-    required this.progresso,
-  });
 }

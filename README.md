@@ -18,14 +18,14 @@ O projeto foi pensado para oferecer uma experiência simples, prática e intuiti
 
 # 👥 Responsabilidades da Equipe
 
-| Integrante | Telas |
-|---|---|
-| Gustavo Rodrigues | Tela Inicial e Cadastro |
-| Filipe Brisio  | Login e Esqueci a Senha |
-| Hyago Oliveira | Início, Cadastrar Novo Evento e Editar Evento |
-| Breno Barbosa | Agenda |
-| Isaias Oliveira | Tarefas, Criar Nova Tarefa e Editar Tarefa |
-| Alan Vieira | Perfil |
+| Integrante | Telas | Link do Vídeo |
+|---|---|---|
+| Gustavo Rodrigues | Tela Inicial e Cadastro | https://drive.google.com/drive/folders/1A6aZuHWlXji1asS-QBGC4XRDKavBpUxz?usp=sharing |
+| Filipe Brisio | Login e Esqueci a Senha | |
+| Hyago Oliveira | Início, Cadastrar Novo Evento e Editar Evento | |
+| Breno Barbosa | Agenda | |
+| Isaias Oliveira | Tarefas, Criar Nova Tarefa e Editar Tarefa | |
+| Alan Vieira | Perfil | |
 
 ---
 
