@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../components/botao.dart';
@@ -16,6 +17,7 @@ class EsqueciSenha extends StatefulWidget {
 class _EsqueciSenhaState extends State<EsqueciSenha> {
   final emailController = TextEditingController();
   bool linkEnviado = false;
+  bool carregando = false;
 
   @override
   void dispose() {
@@ -23,24 +25,91 @@ class _EsqueciSenhaState extends State<EsqueciSenha> {
     super.dispose();
   }
 
-  void enviarLink() {
+  Future<void> enviarLink() async {
+    debugPrint('RESET SENHA: clique em enviar link recebido.');
+
+    if (carregando) {
+      debugPrint('RESET SENHA: chamada ignorada porque ja esta carregando.');
+      return;
+    }
+
     if (emailController.text.isEmpty) {
+      debugPrint('RESET SENHA: campo de e-mail vazio.');
       mostrarMensagem('Digite seu e-mail para receber o link.');
       return;
     }
 
     if (!Validators.emailValido(emailController.text)) {
+      debugPrint(
+        'RESET SENHA: e-mail invalido pela validacao do app: '
+        '${emailController.text}',
+      );
       mostrarMensagem('Digite um e-mail valido.');
       return;
     }
 
+    final email = emailController.text.trim().toLowerCase();
+
+    debugPrint('RESET SENHA: e-mail normalizado para envio: $email');
+
     setState(() {
-      linkEnviado = true;
+      carregando = true;
     });
+
+    try {
+      debugPrint('RESET SENHA: chamando FirebaseAuth.sendPasswordResetEmail.');
+
+      await FirebaseAuth.instance.sendPasswordResetEmail(
+        email: email,
+      );
+
+      if (!mounted) return;
+
+      debugPrint('RESET SENHA: Firebase confirmou envio do link para $email.');
+
+      setState(() {
+        linkEnviado = true;
+      });
+    } on FirebaseAuthException catch (e, s) {
+      debugPrint('ERRO RESET SENHA FIREBASE: ${e.code} - ${e.message}');
+      debugPrint('STACK RESET SENHA FIREBASE: $s');
+
+      if (!mounted) return;
+
+      mostrarMensagem(_mensagemErroFirebase(e));
+    } catch (e, s) {
+      debugPrint('ERRO RESET SENHA: $e');
+      debugPrint('STACK RESET SENHA: $s');
+
+      if (!mounted) return;
+
+      mostrarMensagem('Nao foi possivel enviar o e-mail. Tente novamente.');
+    } finally {
+      if (mounted) {
+        setState(() {
+          carregando = false;
+        });
+      }
+    }
   }
 
-  void mostrarMensagem(String mensagem) {
-    showDialog(
+  String _mensagemErroFirebase(FirebaseAuthException erro) {
+    switch (erro.code) {
+      case 'invalid-email':
+        return 'Digite um e-mail valido.';
+      case 'user-not-found':
+        return 'Nao encontramos uma conta com este e-mail.';
+      case 'too-many-requests':
+        return 'Muitas tentativas. Tente novamente mais tarde.';
+      case 'network-request-failed':
+        return 'Sem conexao com a internet. Verifique sua rede.';
+      default:
+        return 'Nao foi possivel enviar o e-mail. Tente novamente.';
+    }
+  }
+
+  Future<void> mostrarMensagem(String mensagem) {
+    return showDialog(
       context: context,
       builder: (_) => CardErro(mensagem: mensagem),
     );
@@ -79,7 +148,7 @@ class _EsqueciSenhaState extends State<EsqueciSenha> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Icon(
-                        Icons.logout_outlined,
+                        Icons.lock_reset_outlined,
                         color: Color(0xFFE76E50),
                         size: 22,
                       ),
@@ -99,7 +168,7 @@ class _EsqueciSenhaState extends State<EsqueciSenha> {
                       linkEnviado
                           ? 'Enviamos um e-mail de redefinicao.'
                           : 'Digite seu e-mail para receber o link\nde redefinicao de senha.',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontFamily: 'SpaceGrotesk',
                         fontSize: 15,
                         fontWeight: FontWeight.w400,
@@ -134,7 +203,7 @@ class _EsqueciSenhaState extends State<EsqueciSenha> {
                             ),
                             children: [
                               TextSpan(
-                                text: emailController.text,
+                                text: emailController.text.trim().toLowerCase(),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w700,
                                   color: Color(0xFF8C7B73),
@@ -154,9 +223,13 @@ class _EsqueciSenhaState extends State<EsqueciSenha> {
                       ),
                       const SizedBox(height: 18),
                       BotaoLogin(
-                        texto: 'Enviar link de redefinicao',
+                        texto: carregando
+                            ? 'Enviando...'
+                            : 'Enviar link de redefinicao',
                         onPressed: enviarLink,
-                        backgroundColor: const Color(0xFFE76E50),
+                        backgroundColor: carregando
+                            ? const Color(0xFFE7A18F)
+                            : const Color(0xFFE76E50),
                       ),
                     ],
                     const SizedBox(height: 14),
