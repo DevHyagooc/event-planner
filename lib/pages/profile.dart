@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'pagina_inicial.dart';
+import '../services/auth_service.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
@@ -226,7 +227,9 @@ class Profile extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () {
+        onTap: () async {
+          await AuthService().sair();
+          if (!context.mounted) return;
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (_) => const PaginaInicial()),
             (route) => false,
