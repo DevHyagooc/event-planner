@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../components/card_erro.dart';
-import 'tarefas_models.dart';
+import '../../models/event_task.dart';
 import 'tarefas_shared.dart';
 
 class FormTarefaPage extends StatefulWidget {
-  const FormTarefaPage({
-    super.key,
-    this.initialTask,
-  });
+  const FormTarefaPage({super.key, required this.eventId, this.initialTask});
 
+  final String eventId;
   final EventTask? initialTask;
 
   @override
@@ -26,7 +24,9 @@ class _FormTarefaPageState extends State<FormTarefaPage> {
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: widget.initialTask?.title ?? '');
+    _titleController = TextEditingController(
+      text: widget.initialTask?.title ?? '',
+    );
     _responsibleController = TextEditingController(
       text: widget.initialTask?.responsible ?? '',
     );
@@ -49,9 +49,7 @@ class _FormTarefaPageState extends State<FormTarefaPage> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: TaskPalette.primary,
-            ),
+            colorScheme: const ColorScheme.light(primary: TaskPalette.primary),
           ),
           child: child!,
         );
@@ -75,22 +73,25 @@ class _FormTarefaPageState extends State<FormTarefaPage> {
     if (_titleController.text.trim().isEmpty) {
       showDialog(
         context: context,
-        builder: (_) => const CardErro(
-          mensagem: 'Informe o título da tarefa.',
-        ),
+        builder: (_) => const CardErro(mensagem: 'Informe o título da tarefa.'),
       );
       return;
     }
 
     final baseTask = widget.initialTask;
+    final now = DateTime.now();
     final task = EventTask(
-      id: baseTask?.id ?? DateTime.now().microsecondsSinceEpoch.toString(),
+      id: baseTask?.id ?? '',
+      eventId: widget.eventId,
       title: _titleController.text.trim(),
       responsible: _responsibleController.text.trim().isEmpty
           ? 'Não definido'
           : _responsibleController.text.trim(),
       dueDate: _selectedDate,
       isCompleted: baseTask?.isCompleted ?? false,
+      completedAt: baseTask?.completedAt,
+      createdAt: baseTask?.createdAt ?? now,
+      updatedAt: now,
     );
 
     Navigator.pop(context, task);
@@ -109,7 +110,11 @@ class _FormTarefaPageState extends State<FormTarefaPage> {
               const SizedBox(height: 14),
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back, size: 24, color: TaskPalette.text),
+                icon: const Icon(
+                  Icons.arrow_back,
+                  size: 24,
+                  color: TaskPalette.text,
+                ),
               ),
               const SizedBox(height: 8),
               Text(

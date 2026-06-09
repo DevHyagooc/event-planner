@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "641006812551-uc77t1kl061hhqg6q87ma68hn6hp7343.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.event_planner",
+            "certificate_hash": "e0ed0f0e078258b5247cdf8016f4ac25b0f2cead"
+          }
+        },
+        {
           "client_id": "641006812551-res10hf6p3iu9fi9dkpu3n327udpp1hk.apps.googleusercontent.com",
           "client_type": 3
         }

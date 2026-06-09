@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../components/botao.dart';
-import 'tarefas_models.dart';
+import '../../models/event_task.dart';
+import '../../models/evento.dart';
 
 class TaskPalette {
   static const background = Color(0xFFF5F3F1);
@@ -42,6 +42,122 @@ class TaskDateFormatter {
   static String eventDate(DateTime date) {
     return '${date.day} ${_months[date.month - 1]} ${date.year}';
   }
+}
+
+class TaskStatusFormatter {
+  static String eventStatus(EventoStatus status) {
+    switch (status) {
+      case EventoStatus.planejando:
+        return 'Planejando';
+      case EventoStatus.concluido:
+        return 'Concluído';
+      case EventoStatus.cancelado:
+        return 'Cancelado';
+    }
+  }
+}
+
+Future<bool> showTaskDeleteConfirmation(BuildContext context) async {
+  final result = await showDialog<bool>(
+    context: context,
+    barrierColor: Colors.black.withValues(alpha: 0.12),
+    builder: (context) {
+      return Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 28),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: TaskPalette.border),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Excluir tarefa?',
+                style: TextStyle(
+                  fontFamily: 'SpaceGrotesk',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: TaskPalette.text,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Isso removerá a tarefa permanentemente.',
+                style: TextStyle(
+                  fontFamily: 'SpaceGrotesk',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: TaskPalette.muted,
+                ),
+              ),
+              const SizedBox(height: 26),
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 44,
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: TaskPalette.muted,
+                          side: const BorderSide(color: TaskPalette.primary),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Cancelar',
+                          style: TextStyle(
+                            fontFamily: 'SpaceGrotesk',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: SizedBox(
+                      height: 44,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: TaskPalette.primary,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Excluir',
+                          style: TextStyle(
+                            fontFamily: 'SpaceGrotesk',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+
+  return result ?? false;
 }
 
 class TaskFilterChip extends StatelessWidget {
@@ -175,7 +291,9 @@ class EventTaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardColor = task.isCompleted ? TaskPalette.completed : TaskPalette.surface;
+    final cardColor = task.isCompleted
+        ? TaskPalette.completed
+        : TaskPalette.surface;
     final titleColor = task.isCompleted ? TaskPalette.muted : TaskPalette.text;
 
     return InkWell(
@@ -195,7 +313,9 @@ class EventTaskCard extends StatelessWidget {
                 width: 18,
                 height: 18,
                 decoration: BoxDecoration(
-                  color: task.isCompleted ? TaskPalette.primary : Colors.transparent,
+                  color: task.isCompleted
+                      ? TaskPalette.primary
+                      : Colors.transparent,
                   shape: BoxShape.circle,
                   border: Border.all(color: TaskPalette.primary),
                 ),
@@ -218,13 +338,19 @@ class EventTaskCard extends StatelessWidget {
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: titleColor,
-                      decoration: task.isCompleted ? TextDecoration.lineThrough : null,
+                      decoration: task.isCompleted
+                          ? TextDecoration.lineThrough
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 5),
                   Row(
                     children: [
-                      Icon(Icons.person_outline, size: 12, color: TaskPalette.muted),
+                      Icon(
+                        Icons.person_outline,
+                        size: 12,
+                        color: TaskPalette.muted,
+                      ),
                       const SizedBox(width: 4),
                       Flexible(
                         child: Text(
@@ -240,7 +366,11 @@ class EventTaskCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      const Icon(Icons.calendar_today_outlined, size: 11, color: TaskPalette.primary),
+                      const Icon(
+                        Icons.calendar_today_outlined,
+                        size: 11,
+                        color: TaskPalette.primary,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         TaskDateFormatter.shortMonth(task.dueDate),
@@ -259,12 +389,20 @@ class EventTaskCard extends StatelessWidget {
             IconButton(
               visualDensity: VisualDensity.compact,
               onPressed: onEdit,
-              icon: const Icon(Icons.edit_outlined, size: 18, color: TaskPalette.text),
+              icon: const Icon(
+                Icons.edit_outlined,
+                size: 18,
+                color: TaskPalette.text,
+              ),
             ),
             IconButton(
               visualDensity: VisualDensity.compact,
               onPressed: onDelete,
-              icon: const Icon(Icons.delete_outline, size: 18, color: Colors.redAccent),
+              icon: const Icon(
+                Icons.delete_outline,
+                size: 18,
+                color: Colors.redAccent,
+              ),
             ),
           ],
         ),
@@ -301,11 +439,33 @@ class TaskEmptyState extends StatelessWidget {
   }
 }
 
+class TaskEmptyStateContent extends StatelessWidget {
+  const TaskEmptyStateContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: const [
+        Icon(Icons.task_alt_outlined, size: 76, color: TaskPalette.primary),
+        SizedBox(height: 22),
+        Text(
+          'Nenhuma tarefa encontrada.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'SpaceGrotesk',
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
+            color: TaskPalette.muted,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class TaskBottomNavigation extends StatelessWidget {
-  const TaskBottomNavigation({
-    super.key,
-    required this.onAddTap,
-  });
+  const TaskBottomNavigation({super.key, required this.onAddTap});
 
   final VoidCallback onAddTap;
 
@@ -349,11 +509,27 @@ class TaskBottomNavigation extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  item(icon: Icons.home_outlined, label: 'Início', selected: false),
-                  item(icon: Icons.calendar_today_outlined, label: 'Agenda', selected: false),
+                  item(
+                    icon: Icons.home_outlined,
+                    label: 'Início',
+                    selected: false,
+                  ),
+                  item(
+                    icon: Icons.calendar_today_outlined,
+                    label: 'Agenda',
+                    selected: false,
+                  ),
                   const SizedBox(width: 54),
-                  item(icon: Icons.fact_check_outlined, label: 'Tarefas', selected: true),
-                  item(icon: Icons.person_outline, label: 'Perfil', selected: false),
+                  item(
+                    icon: Icons.fact_check_outlined,
+                    label: 'Tarefas',
+                    selected: true,
+                  ),
+                  item(
+                    icon: Icons.person_outline,
+                    label: 'Perfil',
+                    selected: false,
+                  ),
                 ],
               ),
             ),
@@ -381,17 +557,54 @@ class TaskPrimaryButton extends StatelessWidget {
     super.key,
     required this.label,
     required this.onPressed,
+    this.icon,
+    this.fullWidth = true,
   });
 
   final String label;
   final VoidCallback onPressed;
+  final IconData? icon;
+  final bool fullWidth;
 
   @override
   Widget build(BuildContext context) {
-    return BotaoLogin(
-      texto: label,
-      onPressed: onPressed,
-      backgroundColor: TaskPalette.primary,
+    return SizedBox(
+      width: fullWidth ? double.infinity : null,
+      height: 50,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: TaskPalette.primary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 18),
+              const SizedBox(width: 6),
+            ],
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontFamily: 'SpaceGrotesk',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

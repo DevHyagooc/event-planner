@@ -4,13 +4,16 @@ import '../components/empty_state_home.dart';
 import '../components/custom_bottom_navigation.dart';
 import '../components/card_evento.dart';
 import '../models/evento.dart';
+import '../models/event_task.dart';
 import '../services/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'editar_evento.dart';
 import 'agenda.dart';
+import 'tarefas/detalhe_tarefas_page.dart';
+import 'tarefas/form_tarefa_page.dart';
 import 'tarefas/tarefas_page.dart';
+import 'tarefas/tarefas_shared.dart';
 import 'profile.dart';
-import 'login.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -33,15 +36,132 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void _logout() async {
-    await FirebaseAuth.instance.signOut();
-    if (mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const Login()),
-        (route) => false,
-      );
+  void _irParaDetalheEvento(Evento evento) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => DetalheTarefasPage(event: evento)),
+    );
+  }
+
+  Future<void> _handleAddTap() async {
+    if (_currentIndex == 3) {
+      await _adicionarTarefa();
+      return;
     }
+
+    _irParaEditar();
+  }
+
+  Future<void> _adicionarTarefa() async {
+    if (_currentUserId.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Usuário não autenticado.')));
+      return;
+    }
+
+    try {
+      final eventos = await _firestoreService.getEventosOnce(_currentUserId);
+
+      if (!mounted) {
+        return;
+      }
+
+      if (eventos.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Crie um evento antes de adicionar tarefas.'),
+          ),
+        );
+        return;
+      }
+
+      final selectedEvent = eventos.length == 1
+          ? eventos.first
+          : await _selecionarEventoParaTarefa(eventos);
+
+      if (selectedEvent == null || !mounted) {
+        return;
+      }
+
+      final task = await Navigator.push<EventTask>(
+        context,
+        MaterialPageRoute(
+          builder: (_) => FormTarefaPage(eventId: selectedEvent.id),
+        ),
+      );
+
+      if (task == null) {
+        return;
+      }
+
+      await _firestoreService.saveTask(task);
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao adicionar tarefa: $e')));
+    }
+  }
+
+  Future<Evento?> _selecionarEventoParaTarefa(List<Evento> eventos) {
+    return showModalBottomSheet<Evento>(
+      context: context,
+      backgroundColor: TaskPalette.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Adicionar tarefa em',
+                  style: TextStyle(
+                    fontFamily: 'SpaceGrotesk',
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: TaskPalette.text,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ...eventos.map(
+                  (evento) => ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      evento.titulo,
+                      style: const TextStyle(
+                        fontFamily: 'SpaceGrotesk',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    subtitle: Text(
+                      TaskDateFormatter.eventDate(evento.data),
+                      style: const TextStyle(
+                        fontFamily: 'SpaceGrotesk',
+                        fontSize: 12,
+                        color: TaskPalette.muted,
+                      ),
+                    ),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+                    onTap: () => Navigator.pop(context, evento),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -60,7 +180,7 @@ class _HomeState extends State<Home> {
             });
           }
         },
-        onAddTap: () => _irParaEditar(),
+        onAddTap: _handleAddTap,
       ),
     );
   }
@@ -136,7 +256,7 @@ class _HomeState extends State<Home> {
                   final evento = eventos[index];
                   return CardEvento(
                     evento: evento,
-                    onEdit: () => _irParaEditar(evento: evento),
+                    onTap: () => _irParaDetalheEvento(evento),
                   );
                 },
               ),

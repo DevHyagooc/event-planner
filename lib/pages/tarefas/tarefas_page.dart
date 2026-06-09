@@ -1,5 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../models/event_task.dart';
+import '../../models/evento.dart';
+import '../../services/firestore_service.dart';
 import 'detalhe_tarefas_page.dart';
 import 'form_tarefa_page.dart';
 import 'tarefas_models.dart';
@@ -13,96 +17,24 @@ class TarefasPage extends StatefulWidget {
 }
 
 class _TarefasPageState extends State<TarefasPage> {
+  final FirestoreService _firestoreService = FirestoreService();
   TaskFilter _selectedFilter = TaskFilter.all;
-  late List<EventTaskGroup> _events;
 
-  @override
-  void initState() {
-    super.initState();
-    _events = _buildInitialEvents();
-  }
+  String get _currentUserId =>
+      FirebaseAuth.instance.currentUser?.uid ?? 'user-teste-123';
 
-  List<EventTaskGroup> _buildInitialEvents() {
-    return [
-      EventTaskGroup(
-        id: 'event-1',
-        title: 'Aniversário de João',
-        description: 'Organização das entregas e definições principais do evento.',
-        location: 'Salão de festas',
-        date: DateTime(2026, 3, 28),
-        status: EventTaskStatus.planning,
-        tasks: [
-          EventTask(
-            id: 'task-1',
-            title: 'Tarefa 1',
-            responsible: 'Carlos',
-            dueDate: DateTime(2026, 3, 30),
-          ),
-          EventTask(
-            id: 'task-2',
-            title: 'Tarefa 2',
-            responsible: 'Carlos',
-            dueDate: DateTime(2026, 3, 30),
-          ),
-        ],
-      ),
-      EventTaskGroup(
-        id: 'event-2',
-        title: 'Aniversário de Carla',
-        description: 'Checklist final das pendências com equipe e fornecedores.',
-        location: 'Espaço de eventos',
-        date: DateTime(2026, 4, 2),
-        status: EventTaskStatus.planning,
-        tasks: [
-          EventTask(
-            id: 'task-3',
-            title: 'Tarefa 2',
-            responsible: 'Carlos',
-            dueDate: DateTime(2026, 3, 30),
-            isCompleted: true,
-          ),
-        ],
-      ),
-    ];
-  }
-
-  List<EventTaskGroup> get _visibleEvents {
-    return _events
-        .map(
-          (event) => event.copyWith(tasks: event.tasksFor(_selectedFilter)),
-        )
-        .where((event) => event.tasks.isNotEmpty)
-        .toList();
-  }
-
-  Future<void> _openEvent(EventTaskGroup event) async {
-    final result = await Navigator.push<EventTaskGroup>(
+  Future<void> _openEvent(Evento event) async {
+    await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => DetalheTarefasPage(event: event),
-      ),
+      MaterialPageRoute(builder: (_) => DetalheTarefasPage(event: event)),
     );
-
-    if (result == null) {
-      return;
-    }
-
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      _events = _events
-          .map((item) => item.id == result.id ? result : item)
-          .toList();
-    });
   }
 
-  Future<void> _openTaskFormForEvent(EventTaskGroup event, {EventTask? task}) async {
+  Future<void> _openTaskFormForEvent(Evento event, {EventTask? task}) async {
     final result = await Navigator.push<EventTask>(
       context,
       MaterialPageRoute(
-        builder: (_) => FormTarefaPage(initialTask: task),
+        builder: (_) => FormTarefaPage(eventId: event.id, initialTask: task),
       ),
     );
 
@@ -110,140 +42,143 @@ class _TarefasPageState extends State<TarefasPage> {
       return;
     }
 
-    if (!mounted) {
-      return;
+    try {
+      await _firestoreService.saveTask(result);
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao salvar tarefa: $e')));
     }
-
-    setState(() {
-      _events = _events.map((currentEvent) {
-        if (currentEvent.id != event.id) {
-          return currentEvent;
-        }
-
-        if (task == null) {
-          return currentEvent.copyWith(tasks: [...currentEvent.tasks, result]);
-        }
-
-        final updatedTasks = currentEvent.tasks
-            .map((item) => item.id == task.id ? result : item)
-            .toList();
-
-        return currentEvent.copyWith(tasks: updatedTasks);
-      }).toList();
-    });
   }
 
-  void _toggleTask(EventTaskGroup event, EventTask task) {
-    setState(() {
-      _events = _events.map((currentEvent) {
-        if (currentEvent.id != event.id) {
-          return currentEvent;
-        }
+  Future<void> _toggleTask(EventTask task) async {
+    final now = DateTime.now();
+    final isCompleted = !task.isCompleted;
 
-        final updatedTasks = currentEvent.tasks
-            .map(
-              (item) => item.id == task.id
-                  ? item.copyWith(isCompleted: !item.isCompleted)
-                  : item,
-            )
-            .toList();
-
-        return currentEvent.copyWith(tasks: updatedTasks);
-      }).toList();
-    });
-  }
-
-  void _deleteTask(EventTaskGroup event, EventTask task) {
-    setState(() {
-      _events = _events.map((currentEvent) {
-        if (currentEvent.id != event.id) {
-          return currentEvent;
-        }
-
-        return currentEvent.copyWith(
-          tasks: currentEvent.tasks.where((item) => item.id != task.id).toList(),
-        );
-      }).toList();
-    });
-  }
-
-  Future<void> _handleAddFromBottomNavigation() async {
-    if (_events.isEmpty) {
-      return;
-    }
-
-    if (_events.length == 1) {
-      await _openTaskFormForEvent(_events.first);
-      return;
-    }
-
-    final selectedEvent = await showModalBottomSheet<EventTaskGroup>(
-      context: context,
-      backgroundColor: TaskPalette.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Adicionar tarefa em',
-                style: TextStyle(
-                  fontFamily: 'SpaceGrotesk',
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: TaskPalette.text,
-                ),
-              ),
-              const SizedBox(height: 16),
-              ..._events.map(
-                (event) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(
-                    event.title,
-                    style: const TextStyle(
-                      fontFamily: 'SpaceGrotesk',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  subtitle: Text(
-                    TaskDateFormatter.eventDate(event.date),
-                    style: const TextStyle(
-                      fontFamily: 'SpaceGrotesk',
-                      fontSize: 12,
-                      color: TaskPalette.muted,
-                    ),
-                  ),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 14),
-                  onTap: () => Navigator.pop(context, event),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+    final updatedTask = EventTask(
+      id: task.id,
+      eventId: task.eventId,
+      title: task.title,
+      responsible: task.responsible,
+      dueDate: task.dueDate,
+      isCompleted: isCompleted,
+      completedAt: isCompleted ? now : null,
+      createdAt: task.createdAt,
+      updatedAt: now,
     );
 
-    if (selectedEvent == null) {
+    try {
+      await _firestoreService.saveTask(updatedTask);
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao atualizar tarefa: $e')));
+    }
+  }
+
+  Future<void> _deleteTask(EventTask task) async {
+    final shouldDelete = await showTaskDeleteConfirmation(context);
+    if (!shouldDelete) {
       return;
     }
 
-    if (!mounted) {
-      return;
-    }
+    try {
+      await _firestoreService.deleteTask(task.id);
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
 
-    await _openTaskFormForEvent(selectedEvent);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao excluir tarefa: $e')));
+    }
+  }
+
+  List<EventTask> _tasksForEvent(List<EventTask> tasks, String eventId) {
+    return tasks
+        .where(
+          (task) => task.eventId == eventId && _selectedFilter.matches(task),
+        )
+        .toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final visibleEvents = _visibleEvents;
+    if (_currentUserId.isEmpty) {
+      return const Center(child: Text('Usuário não autenticado.'));
+    }
 
+    return StreamBuilder<List<Evento>>(
+      stream: _firestoreService.getEventos(_currentUserId),
+      builder: (context, eventSnapshot) {
+        if (eventSnapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(color: TaskPalette.primary),
+          );
+        }
+
+        if (eventSnapshot.hasError) {
+          return Center(
+            child: Text('Erro ao carregar eventos: ${eventSnapshot.error}'),
+          );
+        }
+
+        final events = eventSnapshot.data ?? [];
+
+        return _TaskListContent(
+          events: events,
+          selectedFilter: _selectedFilter,
+          onFilterChanged: (filter) => setState(() => _selectedFilter = filter),
+          taskStream: _firestoreService.getTasksForEvents(
+            events.map((event) => event.id).toList(),
+          ),
+          tasksForEvent: _tasksForEvent,
+          onOpenEvent: _openEvent,
+          onOpenTaskFormForEvent: _openTaskFormForEvent,
+          onToggleTask: _toggleTask,
+          onDeleteTask: _deleteTask,
+        );
+      },
+    );
+  }
+}
+
+class _TaskListContent extends StatelessWidget {
+  const _TaskListContent({
+    required this.events,
+    required this.selectedFilter,
+    required this.onFilterChanged,
+    required this.taskStream,
+    required this.tasksForEvent,
+    required this.onOpenEvent,
+    required this.onOpenTaskFormForEvent,
+    required this.onToggleTask,
+    required this.onDeleteTask,
+  });
+
+  final List<Evento> events;
+  final TaskFilter selectedFilter;
+  final ValueChanged<TaskFilter> onFilterChanged;
+  final Stream<List<EventTask>> taskStream;
+  final List<EventTask> Function(List<EventTask> tasks, String eventId)
+  tasksForEvent;
+  final ValueChanged<Evento> onOpenEvent;
+  final Future<void> Function(Evento event, {EventTask? task})
+  onOpenTaskFormForEvent;
+  final ValueChanged<EventTask> onToggleTask;
+  final ValueChanged<EventTask> onDeleteTask;
+
+  @override
+  Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -265,83 +200,106 @@ class _TarefasPageState extends State<TarefasPage> {
               children: [
                 TaskFilterChip(
                   label: 'Todas',
-                  isSelected: _selectedFilter == TaskFilter.all,
-                  onTap: () => setState(() => _selectedFilter = TaskFilter.all),
+                  isSelected: selectedFilter == TaskFilter.all,
+                  onTap: () => onFilterChanged(TaskFilter.all),
                 ),
                 const SizedBox(width: 10),
                 TaskFilterChip(
                   label: 'Pendentes',
-                  isSelected: _selectedFilter == TaskFilter.pending,
-                  onTap: () => setState(() => _selectedFilter = TaskFilter.pending),
+                  isSelected: selectedFilter == TaskFilter.pending,
+                  onTap: () => onFilterChanged(TaskFilter.pending),
                 ),
                 const SizedBox(width: 10),
                 TaskFilterChip(
                   label: 'Concluídas',
-                  isSelected: _selectedFilter == TaskFilter.completed,
-                  onTap: () => setState(() => _selectedFilter = TaskFilter.completed),
+                  isSelected: selectedFilter == TaskFilter.completed,
+                  onTap: () => onFilterChanged(TaskFilter.completed),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            if (visibleEvents.isEmpty)
-              const TaskEmptyState()
-            else
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  itemCount: visibleEvents.length,
-                  itemBuilder: (context, index) {
-                    final event = visibleEvents[index];
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          GestureDetector(
-                            onTap: () => _openEvent(
-                              _events.firstWhere((item) => item.id == event.id),
-                            ),
-                            child: Text(
-                              event.title,
-                              style: const TextStyle(
-                                fontFamily: 'SpaceGrotesk',
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                color: TaskPalette.muted,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          ...event.tasks.map(
-                            (task) => Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: EventTaskCard(
-                                task: task,
-                                onTap: () => _openEvent(
-                                  _events.firstWhere((item) => item.id == event.id),
-                                ),
-                                onToggle: () => _toggleTask(
-                                  _events.firstWhere((item) => item.id == event.id),
-                                  task,
-                                ),
-                                onEdit: () => _openTaskFormForEvent(
-                                  _events.firstWhere((item) => item.id == event.id),
-                                  task: task,
-                                ),
-                                onDelete: () => _deleteTask(
-                                  _events.firstWhere((item) => item.id == event.id),
-                                  task,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+            Expanded(
+              child: StreamBuilder<List<EventTask>>(
+                stream: taskStream,
+                builder: (context, taskSnapshot) {
+                  if (taskSnapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: TaskPalette.primary,
                       ),
                     );
-                  },
-                ),
+                  }
+
+                  if (taskSnapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        'Erro ao carregar tarefas: ${taskSnapshot.error}',
+                      ),
+                    );
+                  }
+
+                  final tasks = taskSnapshot.data ?? [];
+                  final visibleEvents = events
+                      .map(
+                        (event) => (
+                          event: event,
+                          tasks: tasksForEvent(tasks, event.id),
+                        ),
+                      )
+                      .where((group) => group.tasks.isNotEmpty)
+                      .toList();
+
+                  if (visibleEvents.isEmpty) {
+                    return const Center(child: TaskEmptyStateContent());
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.only(bottom: 96),
+                    itemCount: visibleEvents.length,
+                    itemBuilder: (context, index) {
+                      final group = visibleEvents[index];
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            GestureDetector(
+                              onTap: () => onOpenEvent(group.event),
+                              child: Text(
+                                group.event.titulo,
+                                style: const TextStyle(
+                                  fontFamily: 'SpaceGrotesk',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  color: TaskPalette.muted,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            ...group.tasks.map(
+                              (task) => Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: EventTaskCard(
+                                  task: task,
+                                  onTap: () => onOpenEvent(group.event),
+                                  onToggle: () => onToggleTask(task),
+                                  onEdit: () => onOpenTaskFormForEvent(
+                                    group.event,
+                                    task: task,
+                                  ),
+                                  onDelete: () => onDeleteTask(task),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
+            ),
           ],
         ),
       ),

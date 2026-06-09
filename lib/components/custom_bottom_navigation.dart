@@ -15,31 +15,34 @@ class CustomBottomNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const coral = Color(0xFFE76E50);
+    final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
+    final totalHeight = 86 + bottomInset;
 
-    return MediaQuery.removePadding(
-      context: context,
-      removeBottom: true,
-      child: SizedBox(
-        height: 86,
-        child: Stack(
-          clipBehavior: Clip.none,
-          alignment: Alignment.bottomCenter,
-          children: [
-            Container(
-              height: 56,
+    return SizedBox(
+      height: totalHeight,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.topCenter,
+        children: [
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 30,
+            bottom: 0,
+            child: Container(
+              padding: EdgeInsets.only(bottom: bottomInset),
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -2),
                   ),
                 ],
               ),
-              child: SafeArea(
-                top: false,
-                bottom: false,
+              child: SizedBox(
+                height: 56,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -76,24 +79,24 @@ class CustomBottomNavigation extends StatelessWidget {
                 ),
               ),
             ),
-            Positioned(
-              top: 0,
-              child: GestureDetector(
-                onTap: onAddTap,
-                behavior: HitTestBehavior.opaque,
-                child: Container(
-                  width: 60,
-                  height: 60,
-                  decoration: const BoxDecoration(
-                    color: coral,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.add, color: Colors.white, size: 36),
+          ),
+          Positioned(
+            top: 0,
+            child: GestureDetector(
+              onTap: onAddTap,
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                width: 60,
+                height: 60,
+                decoration: const BoxDecoration(
+                  color: coral,
+                  shape: BoxShape.circle,
                 ),
+                child: const Icon(Icons.add, color: Colors.white, size: 36),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
