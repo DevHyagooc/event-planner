@@ -24,7 +24,7 @@ O projeto foi pensado para oferecer uma experiência simples, prática e intuiti
 | Filipe Brisio | Login e Esqueci a Senha | https://www.youtube.com/watch?v=m7BUOcpO9-Q |
 | Hyago Oliveira | Início, Cadastrar Novo Evento e Editar Evento | https://drive.google.com/file/d/194n3F47KufQ9R1GPyPK992bFLdkzLtli/view?usp=sharing |
 | Breno Barbosa | Agenda | https://drive.google.com/drive/folders/1Q4kBCiJgeNviKQQx9FRH-C3uocb3ElLV |
-| Isaias Oliveira | Tarefas, Criar Nova Tarefa e Editar Tarefa | |
+| Isaias Oliveira | Tarefas, Criar Nova Tarefa e Editar Tarefa | https://drive.google.com/file/d/1ZG0DvHw8-F8Y2OtRfK9Tcxs4UbWiwae4/view?usp=sharing |
 | Alan Vieira | Perfil | |
 
 ---
