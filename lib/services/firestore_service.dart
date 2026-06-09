@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/evento.dart';
 import '../models/app_user.dart';
 import '../models/event_task.dart';
+import '../models/estatisticas_perfil.dart';
 import 'firebase_constants.dart';
 
 class FirestoreService {
@@ -25,7 +26,13 @@ class FirestoreService {
     return null;
   }
 
-  Future<bool> cpfExiste(String cpf) async {
+  Stream<AppUser?> streamUser(String id) {
+    return _usuariosRef.doc(id).snapshots().map(
+          (doc) => doc.exists ? AppUser.fromFirestore(doc) : null,
+        );
+  }
+
+    Future<bool> cpfExiste(String cpf) async {
     final result = await _usuariosRef
         .where('cpf', isEqualTo: cpf)
         .limit(1)
@@ -74,6 +81,23 @@ class FirestoreService {
 
   Future<void> deleteEvento(String id) {
     return _eventosRef.doc(id).delete();
+  }
+
+  Stream<EstatisticasPerfil> streamEstatisticas(String userId) {
+    return _eventosRef
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) {
+      final eventos = snapshot.docs.map(Evento.fromFirestore).toList();
+      return EstatisticasPerfil(
+        totalEventos: eventos.length,
+        eventosConcluidos:
+            eventos.where((e) => e.status == EventoStatus.concluido).length,
+        totalTarefas: eventos.fold(0, (soma, e) => soma + e.totalTarefas),
+        tarefasFinalizadas:
+            eventos.fold(0, (soma, e) => soma + e.tarefasConcluidas),
+      );
+    });
   }
 
   // --- Tarefas ---

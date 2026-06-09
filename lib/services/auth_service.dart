@@ -7,6 +7,17 @@ class AuthService {
 
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
+  User? get usuarioAtual => _auth.currentUser;
+
+  Future<void> sair() async {
+    try {
+      await _googleSignIn.signOut();
+    } catch (e) {
+      debugPrint('ERRO GOOGLE SIGNOUT: $e');
+    }
+    await _auth.signOut();
+  }
+
   Future<UserCredential?> entrarComGoogle() async {
     try {
       await _googleSignIn.initialize(
