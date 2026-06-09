@@ -36,3 +36,11 @@ O projeto foi pensado para oferecer uma experiência simples, prática e intuiti
 - Firebase
 
 ---
+
+# 📲 Como executar
+
+1. Clone o repositório: `git clone https://github.com/`
+
+2. Instale as dependências: `flutter pub get`
+
+3. Execute o aplicativo (roda em localhost): `flutter run -d web-server`
